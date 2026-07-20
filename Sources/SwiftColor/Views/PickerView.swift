@@ -64,13 +64,18 @@ struct PickerView: View {
                 magnifier.followCursor()
             }
         }
+        .onChange(of: capture.zoomLevel) { _, _ in
+            if capture.isPicking {
+                magnifier.update(capture: capture)
+            }
+        }
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("屏幕取色")
                 .font(.title2.weight(.bold))
-            Text("系统取色器无需权限；放大镜取色需屏幕录制权限，可实时预览像素。")
+            Text("系统取色无需权限；放大镜取色需屏幕录制，点击不会穿透，滚轮/捏合可调倍率。")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }

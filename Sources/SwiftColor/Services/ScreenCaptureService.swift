@@ -1,5 +1,7 @@
 import AppKit
 import CoreGraphics
+import CoreMedia
+import CoreVideo
 import ScreenCaptureKit
 
 @MainActor
@@ -9,14 +11,21 @@ final class ScreenCaptureService: ObservableObject {
     @Published var magnifierImage: NSImage?
     @Published var hoveredColor: ColorModel?
     @Published var cursorPoint: CGPoint = .zero
+    /// Source pixels shown in the magnifier (odd). Higher zoom → fewer source pixels, larger scale.
+    @Published var zoomLevel: CGFloat = 12
+
+    static let minZoom: CGFloat = 4
+    static let maxZoom: CGFloat = 40
 
     private var stream: SCStream?
     private var streamOutput: CaptureOutput?
     private var display: SCDisplay?
+    private var displays: [SCDisplay] = []
     private var latestFrame: CGImage?
-    private var mouseMonitor: Any?
-    private var clickMonitor: Any?
     private var keyMonitor: Any?
+    private var localScrollMonitor: Any?
+
+    private let shield = EventShieldController()
 
     var onColorPicked: ((ColorModel) -> Void)?
     var onCancel: (() -> Void)?
@@ -25,6 +34,7 @@ final class ScreenCaptureService: ObservableObject {
         do {
             let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
             hasPermission = !content.displays.isEmpty
+            displays = content.displays
             display = content.displays.first
         } catch {
             hasPermission = false
@@ -32,7 +42,6 @@ final class ScreenCaptureService: ObservableObject {
     }
 
     func requestPermission() {
-        // Opening Screen Recording settings for the user
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
             NSWorkspace.shared.open(url)
         }
@@ -59,16 +68,38 @@ final class ScreenCaptureService: ObservableObject {
         }
         guard !isPicking else { return }
         isPicking = true
+        zoomLevel = 12
+        cursorPoint = NSEvent.mouseLocation
+
+        // Full-screen shield swallows clicks so desktop/apps never receive them
+        shield.show(
+            onMove: { [weak self] point in
+                self?.cursorPoint = point
+                self?.updateMagnifier()
+            },
+            onClick: { [weak self] in
+                self?.commitPick()
+            },
+            onScroll: { [weak self] delta in
+                self?.adjustZoom(by: delta)
+            },
+            onCancel: { [weak self] in
+                self?.stopMagnifierPick(cancelled: true)
+            }
+        )
+
+        installKeyMonitor()
         await startStream()
-        installMonitors()
         NSCursor.hide()
+        updateMagnifier()
     }
 
     func stopMagnifierPick(cancelled: Bool = false) {
         guard isPicking else { return }
         isPicking = false
         NSCursor.unhide()
-        removeMonitors()
+        removeKeyMonitor()
+        shield.hide()
         stopStream()
         magnifierImage = nil
         hoveredColor = nil
@@ -77,13 +108,32 @@ final class ScreenCaptureService: ObservableObject {
         }
     }
 
+    func adjustZoom(by scrollDelta: CGFloat) {
+        // Trackpad: small deltas; mouse wheel: larger steps (~1 per notch after normalization)
+        let step: CGFloat = abs(scrollDelta) < 1 ? scrollDelta * 0.35 : (scrollDelta > 0 ? 1.5 : -1.5)
+        // Natural scroll: finger up → positive deltaY on macOS → zoom in
+        let next = min(Self.maxZoom, max(Self.minZoom, zoomLevel + step))
+        guard abs(next - zoomLevel) > 0.01 else { return }
+        zoomLevel = next
+        updateMagnifier()
+    }
+
+    // MARK: - Stream
+
     private func startStream() async {
         do {
             let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
             guard let display = content.displays.first else { return }
             self.display = display
+            self.displays = content.displays
 
-            let filter = SCContentFilter(display: display, excludingWindows: [])
+            // Exclude this process's windows so shield/magnifier never taint sampled pixels
+            let myPID = NSRunningApplication.current.processIdentifier
+            let exclude = content.windows.filter {
+                $0.owningApplication?.processID == myPID
+            }
+
+            let filter = SCContentFilter(display: display, excludingWindows: exclude)
             let config = SCStreamConfiguration()
             config.width = display.width
             config.height = display.height
@@ -112,60 +162,40 @@ final class ScreenCaptureService: ObservableObject {
     }
 
     private func stopStream() {
+        let s = stream
+        stream = nil
+        streamOutput = nil
+        latestFrame = nil
         Task {
-            try? await stream?.stopCapture()
-            stream = nil
-            streamOutput = nil
-            latestFrame = nil
+            try? await s?.stopCapture()
         }
     }
 
-    private func installMonitors() {
-        mouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDragged]) { [weak self] event in
-            self?.cursorPoint = NSEvent.mouseLocation
-            self?.updateMagnifier()
-            return event
-        }
-        // Also global so we track across spaces
-        let globalMouse = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .leftMouseDragged]) { [weak self] event in
-            Task { @MainActor in
-                self?.cursorPoint = NSEvent.mouseLocation
-                self?.updateMagnifier()
-            }
-        }
-        clickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [weak self] event in
-            self?.commitPick()
-            return nil
-        }
-        let globalClick = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] _ in
-            Task { @MainActor in
-                self?.commitPick()
-            }
-        }
+    // MARK: - Key monitor (Escape even if shield loses key)
+
+    private func installKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             if event.keyCode == 53 { // Escape
                 self?.stopMagnifierPick(cancelled: true)
                 return nil
             }
-            return event
+            // Swallow other keys while picking so they don't hit the app
+            return nil
         }
-        // Keep references via associated storage on self — store in array
-        _extraMonitors = [globalMouse as Any, globalClick as Any].compactMap { $0 }
-        _ = globalMouse
-        _ = globalClick
+        // Scroll while mouse is over our own app windows (local)
+        localScrollMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+            guard let self, self.isPicking else { return event }
+            let delta = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.deltaY * 3
+            self.adjustZoom(by: delta)
+            return nil
+        }
     }
 
-    private var _extraMonitors: [Any] = []
-
-    private func removeMonitors() {
-        if let m = mouseMonitor { NSEvent.removeMonitor(m) }
-        if let m = clickMonitor { NSEvent.removeMonitor(m) }
+    private func removeKeyMonitor() {
         if let m = keyMonitor { NSEvent.removeMonitor(m) }
-        for m in _extraMonitors { NSEvent.removeMonitor(m) }
-        mouseMonitor = nil
-        clickMonitor = nil
+        if let m = localScrollMonitor { NSEvent.removeMonitor(m) }
         keyMonitor = nil
-        _extraMonitors = []
+        localScrollMonitor = nil
     }
 
     private func commitPick() {
@@ -175,10 +205,11 @@ final class ScreenCaptureService: ObservableObject {
         stopMagnifierPick()
     }
 
-    private func updateMagnifier() {
+    // MARK: - Magnifier image
+
+    func updateMagnifier() {
         guard isPicking, let frame = latestFrame, let display else { return }
 
-        // Convert Cocoa screen coords (origin bottom-left) to CGImage coords (origin top-left)
         let screenHeight = CGFloat(display.height)
         let scaleX = CGFloat(frame.width) / CGFloat(display.width)
         let scaleY = CGFloat(frame.height) / CGFloat(display.height)
@@ -186,22 +217,24 @@ final class ScreenCaptureService: ObservableObject {
         let px = cursorPoint.x * scaleX
         let py = (screenHeight - cursorPoint.y) * scaleY
 
-        let sampleSize: CGFloat = 15
-        let half = sampleSize / 2
-        var rect = CGRect(x: px - half, y: py - half, width: sampleSize, height: sampleSize)
+        // Fixed lens output size; zoomLevel scales how many source pixels fit in the lens
+        let lensPixels: CGFloat = 160
+        let sampleSize = max(5, min(51, (lensPixels / zoomLevel).rounded(.toNearestOrAwayFromZero)))
+        // Keep odd so center pixel aligns with crosshair
+        let oddSample = sampleSize.truncatingRemainder(dividingBy: 2) == 0 ? sampleSize + 1 : sampleSize
+        let half = oddSample / 2
+
+        var rect = CGRect(x: px - half, y: py - half, width: oddSample, height: oddSample)
         rect = rect.intersection(CGRect(x: 0, y: 0, width: frame.width, height: frame.height))
         guard rect.width > 1, rect.height > 1,
               let cropped = frame.cropping(to: rect) else { return }
 
-        // Center pixel color
-        if let color = pixelColor(in: frame, atX: Int(px), y: Int(py)) {
+        if let color = pixelColor(in: frame, atX: Int(px.rounded()), y: Int(py.rounded())) {
             hoveredColor = color
         }
 
-        // Upscale for magnifier
-        let zoom: CGFloat = 12
-        let outW = Int(sampleSize * zoom)
-        let outH = Int(sampleSize * zoom)
+        let outW = Int(lensPixels)
+        let outH = Int(lensPixels)
         let rep = NSBitmapImageRep(
             bitmapDataPlanes: nil,
             pixelsWide: outW,
@@ -219,7 +252,7 @@ final class ScreenCaptureService: ObservableObject {
         if let ctx = NSGraphicsContext(bitmapImageRep: rep) {
             NSGraphicsContext.current = ctx
             ctx.imageInterpolation = .none
-            let nsImage = NSImage(cgImage: cropped, size: NSSize(width: sampleSize, height: sampleSize))
+            let nsImage = NSImage(cgImage: cropped, size: NSSize(width: oddSample, height: oddSample))
             nsImage.draw(
                 in: NSRect(x: 0, y: 0, width: outW, height: outH),
                 from: .zero,
@@ -237,9 +270,10 @@ final class ScreenCaptureService: ObservableObject {
         guard x >= 0, y >= 0, x < image.width, y < image.height else { return nil }
         guard let data = image.dataProvider?.data,
               let ptr = CFDataGetBytePtr(data) else { return nil }
-        let bytesPerPixel = image.bitsPerPixel / 8
+        let bytesPerPixel = max(1, image.bitsPerPixel / 8)
         let bytesPerRow = image.bytesPerRow
         let offset = y * bytesPerRow + x * bytesPerPixel
+        guard offset + 2 < CFDataGetLength(data) else { return nil }
         // BGRA
         let b = Double(ptr[offset + 0]) / 255
         let g = Double(ptr[offset + 1]) / 255
@@ -249,8 +283,139 @@ final class ScreenCaptureService: ObservableObject {
     }
 }
 
-import CoreMedia
-import CoreVideo
+// MARK: - Full-screen event shield (blocks click-through)
+
+@MainActor
+final class EventShieldController {
+    private var windows: [ShieldPanel] = []
+
+    private var onMove: ((CGPoint) -> Void)?
+    private var onClick: (() -> Void)?
+    private var onScroll: ((CGFloat) -> Void)?
+    private var onCancel: (() -> Void)?
+
+    func show(
+        onMove: @escaping (CGPoint) -> Void,
+        onClick: @escaping () -> Void,
+        onScroll: @escaping (CGFloat) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        hide()
+        self.onMove = onMove
+        self.onClick = onClick
+        self.onScroll = onScroll
+        self.onCancel = onCancel
+
+        for screen in NSScreen.screens {
+            let panel = ShieldPanel(
+                contentRect: screen.frame,
+                styleMask: [.borderless, .nonactivatingPanel],
+                backing: .buffered,
+                defer: false
+            )
+            panel.setFrame(screen.frame, display: true)
+            panel.isOpaque = false
+            panel.backgroundColor = NSColor.black.withAlphaComponent(0.001) // nearly invisible but hit-testable
+            panel.level = .screenSaver
+            panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+            panel.ignoresMouseEvents = false
+            panel.hasShadow = false
+            panel.acceptsMouseMovedEvents = true
+            panel.hidesOnDeactivate = false
+            panel.animationBehavior = .none
+
+            let view = ShieldView(frame: NSRect(origin: .zero, size: screen.frame.size))
+            view.onMove = { [weak self] in self?.onMove?(NSEvent.mouseLocation) }
+            view.onClick = { [weak self] in self?.onClick?() }
+            view.onScroll = { [weak self] d in self?.onScroll?(d) }
+            view.onCancel = { [weak self] in self?.onCancel?() }
+            panel.contentView = view
+            panel.orderFrontRegardless()
+            windows.append(panel)
+        }
+
+        // Become key so we receive keys / scroll reliably
+        windows.first?.makeKey()
+        onMove(NSEvent.mouseLocation)
+    }
+
+    func hide() {
+        for w in windows {
+            w.orderOut(nil)
+        }
+        windows.removeAll()
+        onMove = nil
+        onClick = nil
+        onScroll = nil
+        onCancel = nil
+    }
+}
+
+private final class ShieldPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+}
+
+private final class ShieldView: NSView {
+    var onMove: (() -> Void)?
+    var onClick: (() -> Void)?
+    var onScroll: ((CGFloat) -> Void)?
+    var onCancel: (() -> Void)?
+
+    override var acceptsFirstResponder: Bool { true }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        window?.makeFirstResponder(self)
+        window?.acceptsMouseMovedEvents = true
+    }
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    override func mouseMoved(with event: NSEvent) {
+        onMove?()
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        onMove?()
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        onClick?()
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        // Swallow — do not forward to desktop
+    }
+
+    override func otherMouseDown(with event: NSEvent) {
+        // Swallow
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        let delta = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.deltaY * 4
+        if abs(delta) > 0.01 {
+            onScroll?(delta)
+        }
+    }
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53 {
+            onCancel?()
+        }
+        // Swallow all keys while picking
+    }
+
+    override func magnify(with event: NSEvent) {
+        // Trackpad pinch → zoom
+        let delta = CGFloat(event.magnification) * 40
+        if abs(delta) > 0.01 {
+            onScroll?(delta)
+        }
+    }
+}
+
+// MARK: - Capture output
 
 private final class CaptureOutput: NSObject, SCStreamOutput {
     var onFrame: ((CGImage) -> Void)?

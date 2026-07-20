@@ -61,6 +61,9 @@ struct ContrastPreviewView: View {
         .onChange(of: capture.cursorPoint) { _, _ in
             if capture.isPicking { magnifier.followCursor() }
         }
+        .onChange(of: capture.zoomLevel) { _, _ in
+            if capture.isPicking { magnifier.update(capture: capture) }
+        }
     }
 
     // MARK: - Left: color slots & picker
