@@ -50,19 +50,31 @@
 
 ## 构建与运行
 
+### SPM（命令行）
+
 ```bash
 cd SwiftColor
 swift build -c release
 swift run
 ```
 
-或用 Xcode 打开：
+也可 `open Package.swift` 用 Xcode 以 Package 方式打开。
+
+### Xcode 工程（推荐调试 / 签名 / 权限）
 
 ```bash
-open Package.swift
+open SwiftColor.xcodeproj
 ```
 
-然后选择 `SwiftColor` scheme 运行。
+选择 **SwiftColor** scheme → Run（⌘R）。
+
+若修改了 `project.yml`，重新生成工程：
+
+```bash
+xcodegen generate
+```
+
+源码位于 `Sources/SwiftColor/`，**SPM 与 Xcode 工程共用同一套源文件**。
 
 ## 权限说明
 
@@ -74,13 +86,18 @@ open Package.swift
 ## 项目结构
 
 ```
-Sources/SwiftColor/
-├── App/                 # 入口与 AppDelegate
-├── Models/              # ColorModel、AppState
-├── Services/            # 取色、图片分析、漫步引擎
-├── Views/               # 各功能界面
-│   └── Components/
-└── Resources/Info.plist
+SwiftColor/
+├── Package.swift              # SPM（swift build / swift run）
+├── project.yml                # XcodeGen 工程定义
+├── SwiftColor.xcodeproj       # Xcode 应用工程
+└── Sources/SwiftColor/        # 共用源码
+    ├── App/
+    ├── Models/
+    ├── Services/
+    ├── Views/
+    │   └── Components/
+    └── Resources/
+        └── Assets.xcassets    # App Icon（Xcode 使用）
 ```
 
 ## 快捷键

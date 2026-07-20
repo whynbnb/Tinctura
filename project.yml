@@ -1,0 +1,54 @@
+name: SwiftColor
+options:
+  bundleIdPrefix: com.swiftcolor
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  defaultConfig: Debug
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.0.0"
+
+configs:
+  Debug: debug
+  Release: release
+
+targets:
+  SwiftColor:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Sources/SwiftColor
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.swiftcolor.app
+        PRODUCT_NAME: SwiftColor
+        INFOPLIST_KEY_CFBundleDisplayName: SwiftColor
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.graphics-design
+        INFOPLIST_KEY_NSHighResolutionCapable: YES
+        INFOPLIST_KEY_NSSupportsAutomaticGraphicsSwitching: YES
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © SwiftColor"
+        GENERATE_INFOPLIST_FILE: YES
+        # Screen recording permission for magnifier picker
+        INFOPLIST_KEY_NSScreenCaptureUsageDescription: "SwiftColor 需要屏幕录制权限以进行实时屏幕取色与放大镜预览。"
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/../Frameworks"
+        COMBINE_HIDPI_IMAGES: YES
+        ENABLE_PREVIEWS: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    scheme:
+      testTargets: []
+      gatherCoverageData: false

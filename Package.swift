@@ -10,7 +10,11 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "SwiftColor",
-            path: "Sources/SwiftColor"
+            path: "Sources/SwiftColor",
+            // Xcode app icon catalog; not needed for `swift run`
+            exclude: [
+                "Resources"
+            ]
         )
     ]
 )
