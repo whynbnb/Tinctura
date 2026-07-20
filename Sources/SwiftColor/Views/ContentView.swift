@@ -86,6 +86,8 @@ struct ContentView: View {
         switch appState.selectedTab {
         case .picker:
             PickerView()
+        case .contrast:
+            ContrastPreviewView()
         case .analyzer:
             ImageAnalyzerView()
         case .walk:

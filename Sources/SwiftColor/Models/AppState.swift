@@ -5,6 +5,7 @@ import SwiftUI
 final class AppState: ObservableObject {
     enum Tab: String, CaseIterable, Identifiable {
         case picker = "屏幕取色"
+        case contrast = "对比度"
         case analyzer = "图片分析"
         case walk = "颜色漫步"
         case history = "历史"
@@ -14,6 +15,7 @@ final class AppState: ObservableObject {
         var icon: String {
             switch self {
             case .picker: return "eyedropper"
+            case .contrast: return "circle.lefthalf.filled"
             case .analyzer: return "photo.on.rectangle.angled"
             case .walk: return "waveform.path"
             case .history: return "clock.arrow.circlepath"
