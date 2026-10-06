@@ -45,8 +45,8 @@
 
 ## 环境要求
 
-- macOS 14.0+
-- Xcode 15+ / Swift 5.9+
+- macOS 15.0+
+- Xcode 16+ / Swift 6.0+
 
 ## 构建与运行
 

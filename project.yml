@@ -2,15 +2,15 @@ name: Tinctura
 options:
   bundleIdPrefix: me.whynbnb
   deploymentTarget:
-    macOS: "14.0"
+    macOS: "15.0"
   createIntermediateGroups: true
   groupSortPosition: top
   defaultConfig: Debug
 
 settings:
   base:
-    SWIFT_VERSION: "5.9"
-    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: ""
@@ -25,7 +25,7 @@ targets:
   Tinctura:
     type: application
     platform: macOS
-    deploymentTarget: "14.0"
+    deploymentTarget: "15.0"
     sources:
       - path: Sources/Tinctura
         excludes:

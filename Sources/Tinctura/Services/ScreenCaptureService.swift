@@ -152,7 +152,7 @@ final class ScreenCaptureService: ObservableObject {
             streamOutput = output
 
             let stream = SCStream(filter: filter, configuration: config, delegate: nil)
-            try stream.addStreamOutput(output, type: .screen, sampleHandlerQueue: DispatchQueue(label: "swiftcolor.capture"))
+            try stream.addStreamOutput(output, type: .screen, sampleHandlerQueue: DispatchQueue(label: "tinctura.capture"))
             try await stream.startCapture()
             self.stream = stream
         } catch {
