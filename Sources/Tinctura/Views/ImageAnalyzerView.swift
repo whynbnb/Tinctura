@@ -14,13 +14,15 @@ struct ImageAnalyzerView: View {
     @State private var clickNormalized: CGPoint?
 
     var body: some View {
-        HSplitView {
+        HStack(alignment: .top, spacing: 0) {
             leftPanel
-                .frame(minWidth: 320)
+                .frame(minWidth: 420, maxWidth: .infinity)
+            SplitDivider()
+                .padding(.horizontal, 20)
             rightPanel
-                .frame(minWidth: 280)
+                .frame(minWidth: 340, idealWidth: 380, maxWidth: 460)
         }
-        .padding(16)
+        .padding(20)
     }
 
     private var leftPanel: some View {
@@ -61,10 +63,10 @@ struct ImageAnalyzerView: View {
 
     private var imageDropZone: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color.primary.opacity(isTargeted ? 0.08 : 0.03))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .strokeBorder(
                             isTargeted ? Color.accentColor : Color.primary.opacity(0.12),
                             style: StrokeStyle(lineWidth: 2, dash: image == nil ? [8] : [])
@@ -79,7 +81,7 @@ struct ImageAnalyzerView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: fitted.width, height: fitted.height)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onEnded { value in
@@ -105,7 +107,7 @@ struct ImageAnalyzerView: View {
                     }
                     .frame(width: geo.size.width, height: geo.size.height)
                 }
-                .padding(12)
+                .padding(16)
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: "photo.on.rectangle.angled")
@@ -357,7 +359,7 @@ struct ImageAnalyzerView: View {
     }
 
     private func fittedSize(_ imageSize: CGSize, in container: CGSize) -> CGSize {
-        let pad: CGFloat = 24
+        let pad: CGFloat = 32
         let maxW = container.width - pad
         let maxH = container.height - pad
         let scale = min(maxW / imageSize.width, maxH / imageSize.height, 1)

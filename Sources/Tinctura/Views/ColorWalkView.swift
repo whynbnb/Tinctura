@@ -6,13 +6,15 @@ struct ColorWalkView: View {
     @State private var showTrail = true
 
     var body: some View {
-        HSplitView {
+        HStack(alignment: .top, spacing: 0) {
             controls
-                .frame(minWidth: 300, idealWidth: 340)
+                .frame(minWidth: 340, idealWidth: 380, maxWidth: 440)
+            SplitDivider()
+                .padding(.horizontal, 20)
             stage
-                .frame(minWidth: 360)
+                .frame(minWidth: 460, maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(16)
+        .padding(20)
         .onAppear {
             engine.setBase(appState.currentColor)
         }
@@ -164,12 +166,12 @@ struct ColorWalkView: View {
                                         engine.current.withHSB(b: max(0, engine.current.hsb.b - 0.25)).swiftUIColor
                                     ],
                                     center: .topLeading,
-                                    startRadius: 10,
-                                    endRadius: 140
+                                    startRadius: 12,
+                                    endRadius: 170
                                 )
                             )
-                            .frame(width: 220, height: 220)
-                            .shadow(color: engine.current.swiftUIColor.opacity(0.55), radius: 40, y: 10)
+                            .frame(width: 260, height: 260)
+                            .shadow(color: engine.current.swiftUIColor.opacity(0.55), radius: 48, y: 12)
                             .overlay(
                                 Circle()
                                     .strokeBorder(Color.white.opacity(0.35), lineWidth: 2)
@@ -217,11 +219,12 @@ struct ColorWalkView: View {
                             }
                         }
                         .padding(12)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .glassPanel(cornerRadius: 14)
                         .padding(.horizontal, 20)
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -316,6 +319,6 @@ struct ColorWalkView: View {
             .font(.system(.caption, design: .monospaced))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Capsule().fill(.ultraThinMaterial))
+            .glassCapsule()
     }
 }

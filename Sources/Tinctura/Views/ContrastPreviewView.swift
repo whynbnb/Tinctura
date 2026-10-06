@@ -35,13 +35,15 @@ struct ContrastPreviewView: View {
     }
 
     var body: some View {
-        HSplitView {
+        HStack(alignment: .top, spacing: 0) {
             leftPanel
-                .frame(minWidth: 340, idealWidth: 380)
+                .frame(minWidth: 380, idealWidth: 460, maxWidth: 580)
+            SplitDivider()
+                .padding(.horizontal, 20)
             rightPanel
-                .frame(minWidth: 360)
+                .frame(minWidth: 440, maxWidth: .infinity)
         }
-        .padding(16)
+        .padding(20)
         .onAppear {
             syncEditor(from: activeColor)
             Task { await capture.checkPermission() }

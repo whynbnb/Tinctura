@@ -14,11 +14,12 @@ struct TincturaApp: App {
         WindowGroup("Tinctura") {
             ContentView()
                 .environmentObject(appState)
-                .frame(minWidth: 900, minHeight: 600)
+                .frame(minWidth: 1160, minHeight: 780)
                 .onAppear {
                     NSApplication.shared.activate(ignoringOtherApps: true)
                 }
         }
+        .defaultSize(width: 1360, height: 880)
         .windowStyle(.automatic)
         .windowToolbarStyle(.unified)
         .commands {

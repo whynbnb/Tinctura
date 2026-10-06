@@ -11,6 +11,7 @@
 		108DF94552F03AC8419E2ED5 /* MagnifierOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C647AA679C2475F7292EAE9E /* MagnifierOverlay.swift */; };
 		11BD491CD9646056FBB4F884 /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02F99C7ADA8CBC6F3C5CD58 /* PickerView.swift */; };
 		44E88DE15A47A7D53D698C74 /* ColorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0E828714738D25B569904A /* ColorModel.swift */; };
+		50E091B3E54BFDDBBA82F906 /* GlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515F9BA6A362B5AEFF46AE0D /* GlassStyle.swift */; };
 		582E51B8FC4B580406D9FD7D /* ColorWalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA8B55DC35462EE588FA3BA /* ColorWalkView.swift */; };
 		85252BC3B8CCEE650B27AC83 /* TincturaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C059257DDC3540693CEA60 /* TincturaApp.swift */; };
 		8A562998F33DEB22F7B31B86 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AAE22926086FBE63E40A283 /* AppState.swift */; };
@@ -33,6 +34,7 @@
 		30C059257DDC3540693CEA60 /* TincturaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TincturaApp.swift; sourceTree = "<group>"; };
 		423C43F8F653C43F84B20D43 /* Tinctura.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tinctura.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		487829595CCA87F521FCFA54 /* ContrastPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContrastPreviewView.swift; sourceTree = "<group>"; };
+		515F9BA6A362B5AEFF46AE0D /* GlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStyle.swift; sourceTree = "<group>"; };
 		5AAE22926086FBE63E40A283 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		62395F28D019F7982D11F9BC /* ColorSwatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSwatchView.swift; sourceTree = "<group>"; };
 		6DA8B55DC35462EE588FA3BA /* ColorWalkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorWalkView.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				62395F28D019F7982D11F9BC /* ColorSwatchView.swift */,
+				515F9BA6A362B5AEFF46AE0D /* GlassStyle.swift */,
 				C647AA679C2475F7292EAE9E /* MagnifierOverlay.swift */,
 			);
 			path = Components;
@@ -223,6 +226,7 @@
 				582E51B8FC4B580406D9FD7D /* ColorWalkView.swift in Sources */,
 				D4B96BE1C9227716AFFDAEEF /* ContentView.swift in Sources */,
 				EBB7C1248EAD06047B9FA9FE /* ContrastPreviewView.swift in Sources */,
+				50E091B3E54BFDDBBA82F906 /* GlassStyle.swift in Sources */,
 				A32E5973FCC143E7AC70B6B0 /* HistoryView.swift in Sources */,
 				0E5536FE67CB04F42D6AEFB6 /* ImageAnalyzerView.swift in Sources */,
 				D1E7940DC27D8EF9DD876FF8 /* ImageColorAnalyzer.swift in Sources */,

@@ -15,7 +15,7 @@ struct PickerView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 header
-                LargeColorPreview(color: appState.currentColor, height: 140)
+                LargeColorPreview(color: appState.currentColor, height: 170)
 
                 pickButtons
 
@@ -28,7 +28,7 @@ struct PickerView: View {
 
                 recentStrip
             }
-            .padding(20)
+            .padding(24)
         }
         .onAppear {
             syncSliders(from: appState.currentColor)

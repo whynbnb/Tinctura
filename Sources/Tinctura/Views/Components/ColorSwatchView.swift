@@ -152,7 +152,7 @@ struct ToastBanner: View {
             .font(.callout.weight(.medium))
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(.ultraThinMaterial, in: Capsule())
+            .glassCapsule()
             .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
             .transition(.move(edge: .top).combined(with: .opacity))
     }

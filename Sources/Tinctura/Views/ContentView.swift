@@ -6,7 +6,7 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             sidebar
-                .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 240)
+                .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 270)
         } detail: {
             detail
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -20,25 +20,88 @@ struct ContentView: View {
                 .animation(.spring(response: 0.35), value: appState.showCopiedToast)
         }
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Picker("格式", selection: $appState.preferredFormat) {
-                    ForEach(ColorFormat.allCases) { f in
-                        Text(f.rawValue).tag(f)
-                    }
+            // All three controls live in one item so the spacing between them
+            // is ours. On macOS 26 we hide the toolbar's shared glass so each
+            // control draws its own material.
+            if #available(macOS 26.0, *) {
+                ToolbarItem(placement: .primaryAction) {
+                    toolbarControls
                 }
-                .frame(width: 110)
-
-                Button {
-                    appState.copyCurrent()
-                } label: {
-                    Label("复制", systemImage: "doc.on.doc")
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .primaryAction) {
+                    toolbarControls
                 }
-                .help("复制当前颜色 (\(appState.preferredFormat.rawValue))")
-                .keyboardShortcut("c", modifiers: [.command])
-
-                currentColorChip
             }
         }
+    }
+
+    @ViewBuilder
+    private var formatPicker: some View {
+        if #available(macOS 26.0, *) {
+            // A borderless Menu has no bezel of its own, so the glass capsule
+            // below is the only background (no "capsule inside a capsule").
+            formatMenu
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .glassCapsule(interactive: true)
+        } else {
+            Picker("格式", selection: $appState.preferredFormat) {
+                ForEach(ColorFormat.allCases) { f in
+                    Text(f.rawValue).tag(f)
+                }
+            }
+            .frame(width: 110)
+        }
+    }
+
+    private var formatMenu: some View {
+        Menu {
+            ForEach(ColorFormat.allCases) { f in
+                Button {
+                    appState.preferredFormat = f
+                } label: {
+                    if appState.preferredFormat == f {
+                        Label(f.rawValue, systemImage: "checkmark")
+                    } else {
+                        Text(f.rawValue)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Text(appState.preferredFormat.rawValue)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+    }
+
+    private var toolbarControls: some View {
+        HStack(spacing: 12) {
+            formatPicker
+            currentColorChip
+            copyCurrentButton
+        }
+    }
+
+    private var copyCurrentButton: some View {
+        Button {
+            appState.copyCurrent()
+        } label: {
+            Label("复制", systemImage: "doc.on.doc")
+                .labelStyle(.iconOnly)
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .glassCapsule(interactive: true)
+        .help("复制当前颜色 (\(appState.preferredFormat.rawValue))")
+        .keyboardShortcut("c", modifiers: [.command])
     }
 
     private var sidebar: some View {
@@ -103,11 +166,13 @@ struct ContentView: View {
                 .fill(appState.currentColor.swiftUIColor)
                 .frame(width: 16, height: 16)
                 .overlay(Circle().strokeBorder(Color.primary.opacity(0.2), lineWidth: 1))
-            Text(appState.currentColor.hex)
+            Text(appState.currentColor.formatted(appState.preferredFormat))
                 .font(.system(.caption, design: .monospaced))
+                .lineLimit(1)
+                .truncationMode(.middle)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Capsule().fill(Color.primary.opacity(0.06)))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .glassCapsule(interactive: true)
     }
 }

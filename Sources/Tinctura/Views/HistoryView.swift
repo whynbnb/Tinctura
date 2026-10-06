@@ -47,7 +47,7 @@ struct HistoryView: View {
             } else {
                 ScrollView {
                     LazyVGrid(
-                        columns: [GridItem(.adaptive(minimum: 120), spacing: 12)],
+                        columns: [GridItem(.adaptive(minimum: 140), spacing: 14)],
                         spacing: 12
                     ) {
                         ForEach(filtered) { color in
@@ -64,7 +64,7 @@ struct HistoryView: View {
         VStack(spacing: 0) {
             RoundedRectangle(cornerRadius: 0)
                 .fill(color.swiftUIColor)
-                .frame(height: 72)
+                .frame(height: 88)
                 .overlay(alignment: .topTrailing) {
                     if color.id == appState.currentColor.id {
                         Image(systemName: "checkmark.circle.fill")
