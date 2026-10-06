@@ -1,4 +1,4 @@
-# SwiftColor
+# Tinctura
 
 功能强大的 macOS 屏幕取色软件，基于 **Swift / SwiftUI / SPM** 构建。
 
@@ -53,7 +53,7 @@
 ### SPM（命令行）
 
 ```bash
-cd SwiftColor
+cd Tinctura
 swift build -c release
 swift run
 ```
@@ -63,10 +63,10 @@ swift run
 ### Xcode 工程（推荐调试 / 签名 / 权限）
 
 ```bash
-open SwiftColor.xcodeproj
+open Tinctura.xcodeproj
 ```
 
-选择 **SwiftColor** scheme → Run（⌘R）。
+选择 **Tinctura** scheme → Run（⌘R）。
 
 若修改了 `project.yml`，重新生成工程：
 
@@ -74,7 +74,7 @@ open SwiftColor.xcodeproj
 xcodegen generate
 ```
 
-源码位于 `Sources/SwiftColor/`，**SPM 与 Xcode 工程共用同一套源文件**。
+源码位于 `Sources/Tinctura/`，**SPM 与 Xcode 工程共用同一套源文件**。
 
 ## 权限说明
 
@@ -86,11 +86,11 @@ xcodegen generate
 ## 项目结构
 
 ```
-SwiftColor/
+Tinctura/
 ├── Package.swift              # SPM（swift build / swift run）
 ├── project.yml                # XcodeGen 工程定义
-├── SwiftColor.xcodeproj       # Xcode 应用工程
-└── Sources/SwiftColor/        # 共用源码
+├── Tinctura.xcodeproj       # Xcode 应用工程
+└── Sources/Tinctura/        # 共用源码
     ├── App/
     ├── Models/
     ├── Services/

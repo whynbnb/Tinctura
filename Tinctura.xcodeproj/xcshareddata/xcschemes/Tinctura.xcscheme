@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0878595FBF582782659951E1"
-               BuildableName = "SwiftColor.app"
-               BlueprintName = "SwiftColor"
-               ReferencedContainer = "container:SwiftColor.xcodeproj">
+               BlueprintIdentifier = "8CA48386039449F4B7A30850"
+               BuildableName = "Tinctura.app"
+               BlueprintName = "Tinctura"
+               ReferencedContainer = "container:Tinctura.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0878595FBF582782659951E1"
-            BuildableName = "SwiftColor.app"
-            BlueprintName = "SwiftColor"
-            ReferencedContainer = "container:SwiftColor.xcodeproj">
+            BlueprintIdentifier = "8CA48386039449F4B7A30850"
+            BuildableName = "Tinctura.app"
+            BlueprintName = "Tinctura"
+            ReferencedContainer = "container:Tinctura.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -57,10 +57,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0878595FBF582782659951E1"
-            BuildableName = "SwiftColor.app"
-            BlueprintName = "SwiftColor"
-            ReferencedContainer = "container:SwiftColor.xcodeproj">
+            BlueprintIdentifier = "8CA48386039449F4B7A30850"
+            BuildableName = "Tinctura.app"
+            BlueprintName = "Tinctura"
+            ReferencedContainer = "container:Tinctura.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -76,10 +76,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0878595FBF582782659951E1"
-            BuildableName = "SwiftColor.app"
-            BlueprintName = "SwiftColor"
-            ReferencedContainer = "container:SwiftColor.xcodeproj">
+            BlueprintIdentifier = "8CA48386039449F4B7A30850"
+            BuildableName = "Tinctura.app"
+            BlueprintName = "Tinctura"
+            ReferencedContainer = "container:Tinctura.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>

@@ -73,7 +73,7 @@ struct ContentView: View {
         }
         .listStyle(.sidebar)
         .safeAreaInset(edge: .bottom) {
-            Text("SwiftColor")
+            Text("Tinctura")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
                 .frame(maxWidth: .infinity)

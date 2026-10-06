@@ -1,6 +1,6 @@
-name: SwiftColor
+name: Tinctura
 options:
-  bundleIdPrefix: com.swiftcolor
+  bundleIdPrefix: me.whynbnb
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -22,26 +22,26 @@ configs:
   Release: release
 
 targets:
-  SwiftColor:
+  Tinctura:
     type: application
     platform: macOS
     deploymentTarget: "14.0"
     sources:
-      - path: Sources/SwiftColor
+      - path: Sources/Tinctura
         excludes:
           - "**/.DS_Store"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.swiftcolor.app
-        PRODUCT_NAME: SwiftColor
-        INFOPLIST_KEY_CFBundleDisplayName: SwiftColor
+        PRODUCT_BUNDLE_IDENTIFIER: me.whynbnb.Tinctura
+        PRODUCT_NAME: Tinctura
+        INFOPLIST_KEY_CFBundleDisplayName: Tinctura
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.graphics-design
         INFOPLIST_KEY_NSHighResolutionCapable: YES
         INFOPLIST_KEY_NSSupportsAutomaticGraphicsSwitching: YES
-        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © SwiftColor"
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © Tinctura"
         GENERATE_INFOPLIST_FILE: YES
         # Screen recording permission for magnifier picker
-        INFOPLIST_KEY_NSScreenCaptureUsageDescription: "SwiftColor 需要屏幕录制权限以进行实时屏幕取色与放大镜预览。"
+        INFOPLIST_KEY_NSScreenCaptureUsageDescription: "Tinctura 需要屏幕录制权限以进行实时屏幕取色与放大镜预览。"
         LD_RUNPATH_SEARCH_PATHS:
           - "$(inherited)"
           - "@executable_path/../Frameworks"

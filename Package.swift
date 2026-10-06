@@ -2,15 +2,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftColor",
+    name: "Tinctura",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "SwiftColor", targets: ["SwiftColor"])
+        .executable(name: "Tinctura", targets: ["Tinctura"])
     ],
     targets: [
         .executableTarget(
-            name: "SwiftColor",
-            path: "Sources/SwiftColor",
+            name: "Tinctura",
+            path: "Sources/Tinctura",
             // Xcode app icon catalog; not needed for `swift run`
             exclude: [
                 "Resources"

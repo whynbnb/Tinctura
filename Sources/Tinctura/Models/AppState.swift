@@ -30,7 +30,7 @@ final class AppState: ObservableObject {
     @Published var showCopiedToast = false
     @Published var toastMessage = ""
 
-    private let historyKey = "SwiftColor.history"
+    private let historyKey = "Tinctura.history"
     private let maxHistory = 80
 
     init() {

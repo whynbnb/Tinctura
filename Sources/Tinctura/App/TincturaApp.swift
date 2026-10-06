@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 @main
-struct SwiftColorApp: App {
+struct TincturaApp: App {
     @StateObject private var appState = AppState()
 
     init() {
@@ -11,7 +11,7 @@ struct SwiftColorApp: App {
     }
 
     var body: some Scene {
-        WindowGroup("SwiftColor") {
+        WindowGroup("Tinctura") {
             ContentView()
                 .environmentObject(appState)
                 .frame(minWidth: 900, minHeight: 600)
@@ -53,7 +53,7 @@ struct SwiftColorApp: App {
 }
 
 extension Notification.Name {
-    static let triggerSystemPick = Notification.Name("SwiftColor.triggerSystemPick")
+    static let triggerSystemPick = Notification.Name("Tinctura.triggerSystemPick")
 }
 
 struct SettingsView: View {
