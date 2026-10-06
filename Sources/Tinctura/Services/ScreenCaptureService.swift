@@ -11,6 +11,10 @@ final class ScreenCaptureService: ObservableObject {
     @Published var magnifierImage: NSImage?
     @Published var hoveredColor: ColorModel?
     @Published var cursorPoint: CGPoint = .zero
+    /// Small un-magnified crop around the cursor so the user can see the local context.
+    @Published var contextImage: NSImage?
+    /// Cursor position within `contextImage`, normalized 0...1 (top-left origin).
+    @Published var contextFraction: CGPoint = .zero
     /// Source pixels shown in the magnifier (odd). Higher zoom → fewer source pixels, larger scale.
     @Published var zoomLevel: CGFloat = 12
 
@@ -24,6 +28,7 @@ final class ScreenCaptureService: ObservableObject {
     private var latestFrame: CGImage?
     private var keyMonitor: Any?
     private var localScrollMonitor: Any?
+    private var lastContextUpdate = Date.distantPast
 
     private let shield = EventShieldController()
 
@@ -112,6 +117,8 @@ final class ScreenCaptureService: ObservableObject {
         stopStream()
         magnifierImage = nil
         hoveredColor = nil
+        contextImage = nil
+        contextFraction = .zero
         if cancelled {
             onCancel?()
         }
@@ -132,20 +139,23 @@ final class ScreenCaptureService: ObservableObject {
     private func startStream() async {
         do {
             let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
-            guard let display = content.displays.first else { return }
+            // Capture the display the pointer is on so the coordinate mapping below is correct.
+            guard let display = displayUnderMouse(in: content.displays) ?? content.displays.first else { return }
             self.display = display
             self.displays = content.displays
 
-            // Exclude this process's windows so shield/magnifier never taint sampled pixels
+            // Exclude the whole app rather than a snapshot of its windows: the
+            // shield exists now and the magnifier panel is created later, so a
+            // per-window list would miss it. With the lens centred on the
+            // cursor, missing it means the capture samples the lens itself.
             let myPID = NSRunningApplication.current.processIdentifier
-            let exclude = content.windows.filter {
-                $0.owningApplication?.processID == myPID
-            }
-
-            let filter = SCContentFilter(display: display, excludingWindows: exclude)
+            let myApps = content.applications.filter { $0.processID == myPID }
+            let filter = SCContentFilter(display: display, excludingApplications: myApps, exceptingWindows: [])
             let config = SCStreamConfiguration()
-            config.width = display.width
-            config.height = display.height
+            // Capture at the display's native pixel resolution. (SCDisplay.width
+            // is in points, so using it directly would give a 1x image.)
+            config.width = CGDisplayPixelsWide(display.displayID)
+            config.height = CGDisplayPixelsHigh(display.displayID)
             config.minimumFrameInterval = CMTime(value: 1, timescale: 30)
             config.pixelFormat = kCVPixelFormatType_32BGRA
             config.showsCursor = false
@@ -154,8 +164,9 @@ final class ScreenCaptureService: ObservableObject {
             let output = CaptureOutput()
             output.onFrame = { [weak self] image in
                 Task { @MainActor in
-                    self?.latestFrame = image
-                    self?.updateMagnifier()
+                    guard let self else { return }
+                    self.latestFrame = image
+                    self.updateMagnifier()
                 }
             }
             streamOutput = output
@@ -219,12 +230,18 @@ final class ScreenCaptureService: ObservableObject {
     func updateMagnifier() {
         guard isPicking, let frame = latestFrame, let display else { return }
 
-        let screenHeight = CGFloat(display.height)
-        let scaleX = CGFloat(frame.width) / CGFloat(display.width)
-        let scaleY = CGFloat(frame.height) / CGFloat(display.height)
+        // CGEvent location and CGDisplayBounds share CoreGraphics' global
+        // display space (origin = top-left of the main display, Y grows down),
+        // which matches the captured frame's orientation directly.
+        let mouse = Self.cgMouseLocation
+        let bounds = CGDisplayBounds(display.displayID)
+        let scaleX = CGFloat(frame.width) / bounds.width
+        let scaleY = CGFloat(frame.height) / bounds.height
 
-        let px = cursorPoint.x * scaleX
-        let py = (screenHeight - cursorPoint.y) * scaleY
+        let px = (mouse.x - bounds.minX) * scaleX
+        let py = (mouse.y - bounds.minY) * scaleY
+
+        updateContext(from: frame, px: px, py: py)
 
         // Fixed lens output size; zoomLevel scales how many source pixels fit in the lens
         let lensPixels: CGFloat = 160
@@ -275,20 +292,81 @@ final class ScreenCaptureService: ObservableObject {
         magnifierImage = image
     }
 
+    // MARK: - Display / context helpers
+
+    /// Cursor location in CoreGraphics global display space (top-left origin).
+    private static var cgMouseLocation: CGPoint {
+        CGEvent(source: nil)?.location ?? .zero
+    }
+
+    private func displayUnderMouse(in displays: [SCDisplay]) -> SCDisplay? {
+        let mouse = Self.cgMouseLocation
+        return displays.first { CGDisplayBounds($0.displayID).contains(mouse) }
+    }
+
+    /// Builds a small un-magnified crop centered on the cursor.
+    private func updateContext(from frame: CGImage, px: CGFloat, py: CGFloat) {
+        guard Date().timeIntervalSince(lastContextUpdate) > 0.033 else { return }
+        lastContextUpdate = Date()
+
+        let regionW: CGFloat = 200
+        let regionH: CGFloat = 125
+        var rect = CGRect(x: px - regionW / 2, y: py - regionH / 2, width: regionW, height: regionH)
+        rect = rect.intersection(CGRect(x: 0, y: 0, width: frame.width, height: frame.height))
+        guard rect.width > 2, rect.height > 2, let cropped = frame.cropping(to: rect) else { return }
+
+        contextImage = Self.thumbnail(cropped, maxWidth: 360)
+        contextFraction = CGPoint(
+            x: min(max((px - rect.minX) / rect.width, 0), 1),
+            y: min(max((py - rect.minY) / rect.height, 0), 1)
+        )
+    }
+
+    private static func thumbnail(_ image: CGImage, maxWidth: Int) -> NSImage? {
+        let w = maxWidth
+        let h = max(1, Int((CGFloat(image.height) / CGFloat(image.width) * CGFloat(w)).rounded()))
+        guard let ctx = CGContext(
+            data: nil,
+            width: w,
+            height: h,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+        ctx.interpolationQuality = .medium
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+        guard let out = ctx.makeImage() else { return nil }
+        return NSImage(cgImage: out, size: NSSize(width: w, height: h))
+    }
+
     private func pixelColor(in image: CGImage, atX x: Int, y: Int) -> ColorModel? {
         guard x >= 0, y >= 0, x < image.width, y < image.height else { return nil }
-        guard let data = image.dataProvider?.data,
-              let ptr = CFDataGetBytePtr(data) else { return nil }
-        let bytesPerPixel = max(1, image.bitsPerPixel / 8)
-        let bytesPerRow = image.bytesPerRow
-        let offset = y * bytesPerRow + x * bytesPerPixel
-        guard offset + 2 < CFDataGetLength(data) else { return nil }
-        // BGRA
-        let b = Double(ptr[offset + 0]) / 255
-        let g = Double(ptr[offset + 1]) / 255
-        let r = Double(ptr[offset + 2]) / 255
-        let a = bytesPerPixel > 3 ? Double(ptr[offset + 3]) / 255 : 1
-        return ColorModel(red: r, green: g, blue: b, alpha: a)
+        // Render the single pixel into a known RGBA buffer so the source's
+        // byte order (BGRA / RGBA / …) doesn't matter.
+        guard let cropped = image.cropping(to: CGRect(x: x, y: y, width: 1, height: 1)) else { return nil }
+        var pixel = [UInt8](repeating: 0, count: 4)
+        let ok = pixel.withUnsafeMutableBytes { buffer -> Bool in
+            guard let ctx = CGContext(
+                data: buffer.baseAddress,
+                width: 1,
+                height: 1,
+                bitsPerComponent: 8,
+                bytesPerRow: 4,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ) else { return false }
+            ctx.interpolationQuality = .none
+            ctx.draw(cropped, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+            return true
+        }
+        guard ok else { return nil }
+        return ColorModel(
+            red: Double(pixel[0]) / 255,
+            green: Double(pixel[1]) / 255,
+            blue: Double(pixel[2]) / 255,
+            alpha: Double(pixel[3]) / 255
+        )
     }
 }
 
