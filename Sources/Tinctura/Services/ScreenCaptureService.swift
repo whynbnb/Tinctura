@@ -41,20 +41,23 @@ final class ScreenCaptureService: ObservableObject {
         hasPermission = CGPreflightScreenCaptureAccess()
     }
 
-    /// Ask the system for screen-recording permission. The system shows its
-    /// prompt the first time; call this only from an explicit user action
-    /// (e.g. tapping the magnifier button).
-    @discardableResult
-    func requestScreenRecordingPermission() -> Bool {
-        if CGPreflightScreenCaptureAccess() {
-            hasPermission = true
-            return true
+    /// Access shareable content, which is what actually triggers the system
+    /// screen-recording prompt the first time. We never open System Settings
+    /// ourselves here: `CGRequestScreenCaptureAccess` returns before the user
+    /// has answered, so jumping to Settings left the system prompt dangling.
+    func checkPermission() async {
+        do {
+            let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+            hasPermission = !content.displays.isEmpty
+            displays = content.displays
+            display = content.displays.first
+        } catch {
+            hasPermission = false
         }
-        let granted = CGRequestScreenCaptureAccess()
-        hasPermission = granted
-        return granted
     }
 
+    /// Opens the Screen Recording pane in System Settings. Only ever called
+    /// from the explicit "打开设置" button.
     func requestPermission() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
             NSWorkspace.shared.open(url)
@@ -76,10 +79,14 @@ final class ScreenCaptureService: ObservableObject {
     /// Custom magnifier picker (requires screen recording permission)
     func startMagnifierPick() async {
         // Only here do we ask for permission, so nothing prompts at launch.
-        guard requestScreenRecordingPermission() else {
-            requestPermission()
-            return
+        // If access is denied we simply stop — the UI shows a hint with an
+        // explicit "打开设置" button instead of opening Settings for the user.
+        if CGPreflightScreenCaptureAccess() {
+            hasPermission = true
+        } else {
+            await checkPermission()
         }
+        guard hasPermission else { return }
         guard !isPicking else { return }
         isPicking = true
         zoomLevel = 12
