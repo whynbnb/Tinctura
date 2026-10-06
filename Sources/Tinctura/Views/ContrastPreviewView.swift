@@ -46,7 +46,7 @@ struct ContrastPreviewView: View {
         .padding(20)
         .onAppear {
             syncEditor(from: activeColor)
-            Task { await capture.checkPermission() }
+            capture.refreshPermissionStatus()
             capture.onColorPicked = { color in
                 applyPicked(color)
                 magnifier.hide()

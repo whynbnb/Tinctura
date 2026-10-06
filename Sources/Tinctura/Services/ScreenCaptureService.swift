@@ -30,15 +30,24 @@ final class ScreenCaptureService: ObservableObject {
     var onColorPicked: ((ColorModel) -> Void)?
     var onCancel: (() -> Void)?
 
-    func checkPermission() async {
-        do {
-            let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
-            hasPermission = !content.displays.isEmpty
-            displays = content.displays
-            display = content.displays.first
-        } catch {
-            hasPermission = false
+    /// Silent status check. Never triggers the system permission prompt, so it
+    /// is safe to call on view appearance / refresh.
+    func refreshPermissionStatus() {
+        hasPermission = CGPreflightScreenCaptureAccess()
+    }
+
+    /// Ask the system for screen-recording permission. The system shows its
+    /// prompt the first time; call this only from an explicit user action
+    /// (e.g. tapping the magnifier button).
+    @discardableResult
+    func requestScreenRecordingPermission() -> Bool {
+        if CGPreflightScreenCaptureAccess() {
+            hasPermission = true
+            return true
         }
+        let granted = CGRequestScreenCaptureAccess()
+        hasPermission = granted
+        return granted
     }
 
     func requestPermission() {
@@ -61,8 +70,8 @@ final class ScreenCaptureService: ObservableObject {
 
     /// Custom magnifier picker (requires screen recording permission)
     func startMagnifierPick() async {
-        await checkPermission()
-        guard hasPermission else {
+        // Only here do we ask for permission, so nothing prompts at launch.
+        guard requestScreenRecordingPermission() else {
             requestPermission()
             return
         }

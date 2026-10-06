@@ -33,7 +33,7 @@ struct PickerView: View {
         .onAppear {
             syncSliders(from: appState.currentColor)
             hexInput = appState.currentColor.hex
-            Task { await capture.checkPermission() }
+            capture.refreshPermissionStatus()
             capture.onColorPicked = { color in
                 appState.selectColor(color)
                 syncSliders(from: color)
@@ -122,7 +122,7 @@ struct PickerView: View {
                         .font(.caption)
                         .buttonStyle(.link)
                     Button("刷新") {
-                        Task { await capture.checkPermission() }
+                        capture.refreshPermissionStatus()
                     }
                     .font(.caption)
                     .buttonStyle(.link)
