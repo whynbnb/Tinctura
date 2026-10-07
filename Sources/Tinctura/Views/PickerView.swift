@@ -103,7 +103,7 @@ struct PickerView: View {
                         }
                     }
                 } label: {
-                    Label(capture.isPicking ? "取色中… Esc 取消" : "放大镜取色", systemImage: "plus.magnifyingglass")
+                    Label(NSLocalizedString(capture.isPicking ? "取色中… Esc 取消" : "放大镜取色", comment: ""), systemImage: "plus.magnifyingglass")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -114,7 +114,7 @@ struct PickerView: View {
             HStack(spacing: 8) {
                 Image(systemName: capture.hasPermission ? "checkmark.shield.fill" : "exclamationmark.shield")
                     .foregroundStyle(capture.hasPermission ? .green : .orange)
-                Text(capture.hasPermission ? "已获屏幕录制权限" : "放大镜取色需要屏幕录制权限")
+                Text(NSLocalizedString(capture.hasPermission ? "已获屏幕录制权限" : "放大镜取色需要屏幕录制权限", comment: ""))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if !capture.hasPermission {

@@ -78,7 +78,7 @@ struct MagnifierOverlayView: View {
                 }
             }
 
-            Text(String(format: "%.0f× · 滚轮调倍率", capture.zoomLevel))
+            Text(String(format: NSLocalizedString("%.0f× · 滚轮调倍率", comment: ""), capture.zoomLevel))
                 .font(.system(size: 10, weight: .medium, design: .rounded))
                 .foregroundStyle(.white.opacity(0.85))
         }

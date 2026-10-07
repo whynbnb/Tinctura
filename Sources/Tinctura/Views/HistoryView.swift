@@ -39,9 +39,9 @@ struct HistoryView: View {
             if filtered.isEmpty {
                 Spacer()
                 ContentUnavailableView(
-                    search.isEmpty ? "暂无历史" : "无匹配结果",
+                    NSLocalizedString(search.isEmpty ? "暂无历史" : "无匹配结果", comment: ""),
                     systemImage: "clock",
-                    description: Text(search.isEmpty ? "取色后颜色会出现在这里" : "试试其他关键词")
+                    description: Text(NSLocalizedString(search.isEmpty ? "取色后颜色会出现在这里" : "试试其他关键词", comment: ""))
                 )
                 Spacer()
             } else {

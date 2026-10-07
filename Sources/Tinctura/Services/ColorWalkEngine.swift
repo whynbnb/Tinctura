@@ -16,6 +16,9 @@ enum WalkMode: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Localized display name
+    var title: String { NSLocalizedString(rawValue, comment: "") }
+
     var icon: String {
         switch self {
         case .hueSpin: return "circle.hexagongrid"
@@ -32,18 +35,20 @@ enum WalkMode: String, CaseIterable, Identifiable {
     }
 
     var detail: String {
+        let key: String
         switch self {
-        case .hueSpin: return "沿色相环匀速旋转"
-        case .complementary: return "在互补色之间来回摆动"
-        case .analogous: return "在邻近色相中轻柔游走"
-        case .triad: return "三角配色节奏切换"
-        case .pastelDrift: return "低饱和高明度的柔和漂流"
-        case .neonPulse: return "高饱和霓虹感脉冲"
-        case .monoShade: return "固定色相，明度起伏"
-        case .randomWalk: return "带惯性的随机游走"
-        case .gradientPath: return "在两端颜色间往复插值"
-        case .temperature: return "冷暖色温交替推进"
+        case .hueSpin: key = "沿色相环匀速旋转"
+        case .complementary: key = "在互补色之间来回摆动"
+        case .analogous: key = "在邻近色相中轻柔游走"
+        case .triad: key = "三角配色节奏切换"
+        case .pastelDrift: key = "低饱和高明度的柔和漂流"
+        case .neonPulse: key = "高饱和霓虹感脉冲"
+        case .monoShade: key = "固定色相，明度起伏"
+        case .randomWalk: key = "带惯性的随机游走"
+        case .gradientPath: key = "在两端颜色间往复插值"
+        case .temperature: key = "冷暖色温交替推进"
         }
+        return NSLocalizedString(key, comment: "")
     }
 }
 

@@ -71,7 +71,8 @@ final class AppState: ObservableObject {
     func copy(_ text: String, label: String? = nil) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
-        toastMessage = label.map { "已复制 \($0)" } ?? "已复制 \(text)"
+        let format = NSLocalizedString("已复制 %@", comment: "")
+        toastMessage = String(format: format, label ?? text)
         showCopiedToast = true
         Task {
             try? await Task.sleep(nanoseconds: 1_400_000_000)

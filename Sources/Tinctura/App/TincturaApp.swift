@@ -4,6 +4,8 @@ import AppKit
 @main
 struct TincturaApp: App {
     @StateObject private var appState = AppState()
+    @StateObject private var language = LanguageManager()
+    @StateObject private var appearance = AppearanceManager()
 
     init() {
         // Ensure app activates as a regular GUI app when launched from CLI / SPM
@@ -14,6 +16,10 @@ struct TincturaApp: App {
         WindowGroup("Tinctura") {
             ContentView()
                 .environmentObject(appState)
+                .environmentObject(language)
+                .environmentObject(appearance)
+                .environment(\.locale, Locale(identifier: language.localeIdentifier))
+                .id(language.language)
                 .frame(minWidth: 1160, minHeight: 780)
                 .onAppear {
                     NSApplication.shared.activate(ignoringOtherApps: true)
@@ -49,6 +55,10 @@ struct TincturaApp: App {
         Settings {
             SettingsView()
                 .environmentObject(appState)
+                .environmentObject(language)
+                .environmentObject(appearance)
+                .environment(\.locale, Locale(identifier: language.localeIdentifier))
+                .id(language.language)
         }
     }
 }
@@ -59,9 +69,25 @@ extension Notification.Name {
 
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var language: LanguageManager
+    @EnvironmentObject var appearance: AppearanceManager
 
     var body: some View {
         Form {
+            Picker("外观", selection: $appearance.appearance) {
+                ForEach(AppAppearance.allCases) { a in
+                    Text(a.label).tag(a)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            Picker("语言", selection: $language.language) {
+                ForEach(AppLanguage.allCases) { l in
+                    Text(l.label).tag(l)
+                }
+            }
+            .pickerStyle(.segmented)
+
             Picker("默认复制格式", selection: $appState.preferredFormat) {
                 ForEach(ColorFormat.allCases) { f in
                     Text(f.rawValue).tag(f)
@@ -74,6 +100,6 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(20)
-        .frame(width: 360, height: 140)
+        .frame(width: 400, height: 260)
     }
 }

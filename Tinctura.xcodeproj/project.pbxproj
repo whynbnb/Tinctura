@@ -10,6 +10,8 @@
 		0E5536FE67CB04F42D6AEFB6 /* ImageAnalyzerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4CFD148DED2A12E37E01E3 /* ImageAnalyzerView.swift */; };
 		108DF94552F03AC8419E2ED5 /* MagnifierOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C647AA679C2475F7292EAE9E /* MagnifierOverlay.swift */; };
 		11BD491CD9646056FBB4F884 /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02F99C7ADA8CBC6F3C5CD58 /* PickerView.swift */; };
+		27D113D30DCA7B2E474FA5F8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = FA75BD5A9760B49BBFC48668 /* Localizable.strings */; };
+		2A86460E4791F25CF111E2EC /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB96E3402837AEB556857D /* AppSettings.swift */; };
 		44E88DE15A47A7D53D698C74 /* ColorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0E828714738D25B569904A /* ColorModel.swift */; };
 		50E091B3E54BFDDBBA82F906 /* GlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515F9BA6A362B5AEFF46AE0D /* GlassStyle.swift */; };
 		582E51B8FC4B580406D9FD7D /* ColorWalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA8B55DC35462EE588FA3BA /* ColorWalkView.swift */; };
@@ -29,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		07E2CC357C34AD20550612FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		0B607D0974D8A39658D1A94D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		266E8044F0C283B2FEA1CF8D /* ColorWalkEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorWalkEngine.swift; sourceTree = "<group>"; };
 		2FE3B1EFB0D587F720AC7119 /* ImageColorAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageColorAnalyzer.swift; sourceTree = "<group>"; };
 		30C059257DDC3540693CEA60 /* TincturaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TincturaApp.swift; sourceTree = "<group>"; };
@@ -37,11 +40,13 @@
 		515F9BA6A362B5AEFF46AE0D /* GlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStyle.swift; sourceTree = "<group>"; };
 		5AAE22926086FBE63E40A283 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		62395F28D019F7982D11F9BC /* ColorSwatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSwatchView.swift; sourceTree = "<group>"; };
+		63C1841C566323E173D4C483 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		6DA8B55DC35462EE588FA3BA /* ColorWalkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorWalkView.swift; sourceTree = "<group>"; };
 		7F082D96ED21A6D36845B589 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8EA4BA0083AC4F789D4CF973 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		8EC8D80E17122EAE83C4216A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		902A08D0B5E2BC44FB3D1B5D /* WCAGContrast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCAGContrast.swift; sourceTree = "<group>"; };
+		B0FB96E3402837AEB556857D /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		C02F99C7ADA8CBC6F3C5CD58 /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		C647AA679C2475F7292EAE9E /* MagnifierOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnifierOverlay.swift; sourceTree = "<group>"; };
 		CC19BD8F67A072DBCD90E2AA /* ScreenCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureService.swift; sourceTree = "<group>"; };
@@ -62,6 +67,7 @@
 		0F3A2AA52FBE321D2DD94E67 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				FA75BD5A9760B49BBFC48668 /* Localizable.strings */,
 				7F082D96ED21A6D36845B589 /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -139,6 +145,7 @@
 		EBB3C552FE1B328685D13C8D /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B0FB96E3402837AEB556857D /* AppSettings.swift */,
 				266E8044F0C283B2FEA1CF8D /* ColorWalkEngine.swift */,
 				2FE3B1EFB0D587F720AC7119 /* ImageColorAnalyzer.swift */,
 				CC19BD8F67A072DBCD90E2AA /* ScreenCaptureService.swift */,
@@ -189,6 +196,7 @@
 			knownRegions = (
 				Base,
 				en,
+				"zh-Hans",
 			);
 			mainGroup = 7FA745C132D09DC84B8F506D;
 			minimizedProjectReferenceProxies = 1;
@@ -208,6 +216,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BBD21B78027463CE5CA18F60 /* Assets.xcassets in Resources */,
+				27D113D30DCA7B2E474FA5F8 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +228,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				922A475CF7ADAC9122959600 /* AppDelegate.swift in Sources */,
+				2A86460E4791F25CF111E2EC /* AppSettings.swift in Sources */,
 				8A562998F33DEB22F7B31B86 /* AppState.swift in Sources */,
 				44E88DE15A47A7D53D698C74 /* ColorModel.swift in Sources */,
 				EDD03098FB216AA4F1D72C97 /* ColorSwatchView.swift in Sources */,
@@ -239,6 +249,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		FA75BD5A9760B49BBFC48668 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0B607D0974D8A39658D1A94D /* en */,
+				63C1841C566323E173D4C483 /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		5E4F4E106278529A054531F3 /* Debug */ = {

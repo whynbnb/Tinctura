@@ -10,6 +10,9 @@ enum WCAGLevel: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Localized display name
+    var title: String { NSLocalizedString(rawValue, comment: "") }
+
     /// Minimum contrast ratio required
     var threshold: Double {
         switch self {
@@ -22,13 +25,15 @@ enum WCAGLevel: String, CaseIterable, Identifiable {
     }
 
     var detail: String {
+        let key: String
         switch self {
-        case .aaaNormal: return "普通文本 ≥ 7:1"
-        case .aaNormal: return "普通文本 ≥ 4.5:1"
-        case .aaaLarge: return "大文本 ≥ 4.5:1（≥18pt 或 ≥14pt 粗体）"
-        case .aaLarge: return "大文本 ≥ 3:1（≥18pt 或 ≥14pt 粗体）"
-        case .aaUI: return "UI 组件 / 图形对象 ≥ 3:1"
+        case .aaaNormal: key = "普通文本 ≥ 7:1"
+        case .aaNormal: key = "普通文本 ≥ 4.5:1"
+        case .aaaLarge: key = "大文本 ≥ 4.5:1（≥18pt 或 ≥14pt 粗体）"
+        case .aaLarge: key = "大文本 ≥ 3:1（≥18pt 或 ≥14pt 粗体）"
+        case .aaUI: key = "UI 组件 / 图形对象 ≥ 3:1"
         }
+        return NSLocalizedString(key, comment: "")
     }
 }
 
@@ -43,8 +48,8 @@ struct WCAGResult: Equatable {
     var bestLevelLabel: String {
         if passes[.aaaNormal] == true { return "AAA" }
         if passes[.aaNormal] == true { return "AA" }
-        if passes[.aaLarge] == true { return "AA 大字" }
-        return "未达标"
+        if passes[.aaLarge] == true { return NSLocalizedString("AA 大字", comment: "") }
+        return NSLocalizedString("未达标", comment: "")
     }
 
     var isReadable: Bool {

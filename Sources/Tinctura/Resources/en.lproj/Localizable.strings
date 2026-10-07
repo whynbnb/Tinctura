@@ -1,0 +1,160 @@
+/* Tab / sidebar */
+"功能" = "Features";
+"当前颜色" = "Current Color";
+"屏幕取色" = "Screen Picker";
+"对比度" = "Contrast";
+"图片分析" = "Image Analysis";
+"颜色漫步" = "Color Walk";
+"历史" = "History";
+
+/* Toolbar */
+"格式" = "Format";
+"复制" = "Copy";
+"复制当前颜色" = "Copy Current Color";
+"复制 %@" = "Copy %@";
+"复制当前颜色 (%@)" = "Copy current color (%@)";
+"默认复制格式" = "Default Copy Format";
+
+/* App menu */
+"取色" = "Pick";
+"系统取色" = "System Picker";
+"屏幕取色 · 图片分析 · 颜色漫步" = "Screen Picker · Image Analysis · Color Walk";
+
+/* Settings */
+"外观" = "Appearance";
+"语言" = "Language";
+"跟随系统" = "System";
+"浅色" = "Light";
+"深色" = "Dark";
+
+/* Picker view */
+"系统取色无需权限；放大镜取色需屏幕录制，点击不会穿透，滚轮/捏合可调倍率。" = "The system picker needs no permission. The magnifier needs Screen Recording; clicks don't pass through, and you can scroll or pinch to zoom.";
+"取色中… Esc 取消" = "Picking… Esc to cancel";
+"放大镜取色" = "Magnifier Picker";
+"已获屏幕录制权限" = "Screen Recording granted";
+"放大镜取色需要屏幕录制权限" = "Magnifier Picker needs Screen Recording";
+"打开设置" = "Open Settings";
+"刷新" = "Refresh";
+"手动调节" = "Manual Adjust";
+"应用" = "Apply";
+"最近颜色" = "Recent Colors";
+"取色后将显示在这里" = "Picked colors will appear here";
+
+/* Image analyzer */
+"图片颜色分析" = "Image Color Analysis";
+"拖入或选择图片，提取主色并点击取色" = "Drop or choose an image, extract its palette, and click to pick";
+"打开图片" = "Open Image";
+"提取色数" = "Color Count";
+"重新分析" = "Reanalyze";
+"拖放图片到此处" = "Drop an image here";
+"支持 PNG / JPEG / TIFF / HEIC / WebP" = "Supports PNG / JPEG / TIFF / HEIC / WebP";
+"分析中…" = "Analyzing…";
+"平均色" = "Average Color";
+"设为当前色" = "Set as Current";
+"点击取色" = "Picked Color";
+"复制并选用" = "Copy & Use";
+"主色板" = "Palette";
+"全部加入历史" = "Add All to History";
+"已加入 %lld 个颜色" = "Added %lld colors";
+"未能提取颜色" = "No colors extracted";
+"等待图片" = "Waiting for an image";
+"打开或拖入图片后自动分析主色" = "Open or drop an image to analyze its palette";
+
+/* History */
+"颜色历史" = "Color History";
+"共 %lld 个颜色" = "%lld colors";
+"清空" = "Clear";
+"搜索 HEX / RGB…" = "Search HEX / RGB…";
+"暂无历史" = "No history";
+"无匹配结果" = "No matches";
+"取色后颜色会出现在这里" = "Picked colors will show up here";
+"试试其他关键词" = "Try another keyword";
+"删除" = "Delete";
+
+/* Color walk */
+"在色彩空间中自动游走，发现意外之美" = "Wander through color space and discover unexpected beauty";
+"漫步模式" = "Walk Mode";
+"速度" = "Speed";
+"步幅" = "Step";
+"显示轨迹" = "Show Trail";
+"路径端点" = "Path Endpoints";
+"先选中颜色，再点 A/B 设为端点" = "Select a color, then tap A/B to set an endpoint";
+"暂停" = "Pause";
+"开始漫步" = "Start Walk";
+"单步" = "Step once";
+"重置" = "Reset";
+"以当前色为起点" = "Start from Current";
+"捕获当前" = "Capture Current";
+"轨迹已写入历史" = "Trail added to history";
+"轨迹全部加入历史" = "Add Trail to History";
+"漫步轨迹" = "Walk Trail";
+"漫步中" = "Walking";
+"用当前颜色设为端点 %@" = "Use current color as endpoint %@";
+
+/* Walk modes */
+"色相旋转" = "Hue Spin";
+"互补跃迁" = "Complementary";
+"邻近和谐" = "Analogous";
+"三角节奏" = "Triadic";
+"柔彩漂流" = "Pastel Drift";
+"霓虹脉冲" = "Neon Pulse";
+"单色深浅" = "Mono Shade";
+"随机漫步" = "Random Walk";
+"渐变路径" = "Gradient Path";
+"冷暖交替" = "Warm / Cool";
+"沿色相环匀速旋转" = "Rotate evenly around the hue wheel";
+"在互补色之间来回摆动" = "Swing back and forth between complementary colors";
+"在邻近色相中轻柔游走" = "Drift gently through neighboring hues";
+"三角配色节奏切换" = "Switch on a triadic rhythm";
+"低饱和高明度的柔和漂流" = "Soft drift at low saturation and high brightness";
+"高饱和霓虹感脉冲" = "High-saturation neon pulse";
+"固定色相，明度起伏" = "Fixed hue with rising and falling brightness";
+"带惯性的随机游走" = "Random walk with inertia";
+"在两端颜色间往复插值" = "Interpolate back and forth between two colors";
+"冷暖色温交替推进" = "Alternate warm and cool color temperatures";
+
+/* Contrast */
+"对比度预览" = "Contrast Preview";
+"设置前景 / 背景色，实时查看可见性与 WCAG 合规" = "Set foreground / background colors and check visibility and WCAG compliance live";
+"前景色" = "Foreground";
+"背景色" = "Background";
+"交换前景/背景" = "Swap Foreground/Background";
+"使用当前色" = "Use Current Color";
+"将侧边栏当前颜色设为选中的角色" = "Sets the selected role to the sidebar's current color";
+"为「%@」取色 / 调色" = "Pick / adjust the color for “%@”";
+"从历史选取" = "Pick from History";
+"编辑中" = "Editing";
+"手动调节 (%@)" = "Manual Adjust (%@)";
+"色板" = "Swatch";
+"实时预览" = "Live Preview";
+"主要按钮" = "Primary Button";
+"次要按钮" = "Secondary Button";
+"大号标题示例" = "Large Title Sample";
+"预览文案" = "Preview Text";
+"字号 %lldpt" = "Size %lldpt";
+"粗体" = "Bold";
+"对比度不足：建议加深前景或提高背景明度差，普通文本至少 4.5:1。" = "Contrast too low: darken the foreground or increase the background lightness difference. Normal text needs at least 4.5:1.";
+"WCAG 2.x 合规" = "WCAG 2.x Compliance";
+"大文本：≥ 18pt 常规，或 ≥ 14pt 粗体。UI 组件指图标、边框、输入框等。" = "Large text: ≥ 18pt regular, or ≥ 14pt bold. UI components include icons, borders, and input fields.";
+"屏幕录制权限已就绪" = "Screen Recording is ready";
+"放大镜取色需屏幕录制权限" = "Magnifier Picker needs Screen Recording";
+"设置" = "Settings";
+
+/* WCAG levels */
+"AAA 正文" = "AAA Body";
+"AA 正文" = "AA Body";
+"AAA 大字" = "AAA Large";
+"AA 大字" = "AA Large";
+"AA 控件" = "AA UI";
+"普通文本 ≥ 7:1" = "Normal text ≥ 7:1";
+"普通文本 ≥ 4.5:1" = "Normal text ≥ 4.5:1";
+"大文本 ≥ 4.5:1（≥18pt 或 ≥14pt 粗体）" = "Large text ≥ 4.5:1 (≥18pt or ≥14pt bold)";
+"大文本 ≥ 3:1（≥18pt 或 ≥14pt 粗体）" = "Large text ≥ 3:1 (≥18pt or ≥14pt bold)";
+"UI 组件 / 图形对象 ≥ 3:1" = "UI components / graphics ≥ 3:1";
+"未达标" = "Not met";
+
+/* Magnifier overlay */
+"%.0f× · 滚轮调倍率" = "%.0f× · scroll to zoom";
+
+/* Toast */
+"已复制 %@" = "Copied %@";

@@ -1,0 +1,5 @@
+/*
+  Chinese (Simplified) strings are the source strings themselves, so this file
+  intentionally has no entries: a missing key falls back to the key, which is
+  already the Simplified Chinese text.
+*/

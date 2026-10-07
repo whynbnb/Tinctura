@@ -79,7 +79,7 @@ struct ColorWalkView: View {
                         engine.toggle()
                     } label: {
                         Label(
-                            engine.isPlaying ? "暂停" : "开始漫步",
+                            NSLocalizedString(engine.isPlaying ? "暂停" : "开始漫步", comment: ""),
                             systemImage: engine.isPlaying ? "pause.fill" : "play.fill"
                         )
                         .frame(maxWidth: .infinity)
@@ -128,7 +128,7 @@ struct ColorWalkView: View {
                     for c in engine.trail.reversed() {
                         appState.pushHistory(c)
                     }
-                    appState.toastMessage = "轨迹已写入历史"
+                    appState.toastMessage = NSLocalizedString("轨迹已写入历史", comment: "")
                     appState.showCopiedToast = true
                 } label: {
                     Label("轨迹全部加入历史", systemImage: "tray.and.arrow.down")
@@ -181,7 +181,7 @@ struct ColorWalkView: View {
                         VStack(spacing: 4) {
                             Text(engine.current.hex)
                                 .font(.system(.title, design: .monospaced).weight(.bold))
-                            Text(engine.mode.rawValue)
+                            Text(engine.mode.title)
                                 .font(.caption.weight(.medium))
                                 .opacity(0.85)
                         }
@@ -259,7 +259,7 @@ struct ColorWalkView: View {
             HStack(spacing: 8) {
                 Image(systemName: mode.icon)
                     .frame(width: 18)
-                Text(mode.rawValue)
+                Text(mode.title)
                     .font(.caption.weight(.semibold))
                     .lineLimit(1)
                 Spacer(minLength: 0)
@@ -282,7 +282,7 @@ struct ColorWalkView: View {
     private func labeledSlider(_ title: String, value: Binding<Double>) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(title)
+                Text(NSLocalizedString(title, comment: ""))
                     .font(.caption.weight(.semibold))
                 Spacer()
                 Text(String(format: "%.0f%%", value.wrappedValue * 100))

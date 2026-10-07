@@ -189,7 +189,10 @@ struct ImageAnalyzerView: View {
                                 for s in swatches {
                                     appState.pushHistory(s.color)
                                 }
-                                appState.toastMessage = "已加入 \(swatches.count) 个颜色"
+                                appState.toastMessage = String(
+                                    format: NSLocalizedString("已加入 %lld 个颜色", comment: ""),
+                                    swatches.count
+                                )
                                 appState.showCopiedToast = true
                             }
                             .buttonStyle(.link)

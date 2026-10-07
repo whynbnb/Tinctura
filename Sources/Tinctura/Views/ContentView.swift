@@ -108,7 +108,7 @@ struct ContentView: View {
         List(selection: $appState.selectedTab) {
             Section("功能") {
                 ForEach(AppState.Tab.allCases) { tab in
-                    Label(tab.rawValue, systemImage: tab.icon)
+                    Label(NSLocalizedString(tab.rawValue, comment: ""), systemImage: tab.icon)
                         .tag(tab)
                 }
             }

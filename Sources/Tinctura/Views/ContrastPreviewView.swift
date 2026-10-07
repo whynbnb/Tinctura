@@ -4,6 +4,8 @@ import AppKit
 enum ContrastRole: String {
     case foreground = "前景色"
     case background = "背景色"
+
+    var title: String { NSLocalizedString(rawValue, comment: "") }
 }
 
 struct ContrastPreviewView: View {
@@ -111,7 +113,7 @@ struct ContrastPreviewView: View {
 
                 Divider()
 
-                Text("为「\(activeRole.rawValue)」取色 / 调色")
+                Text("为「\(activeRole.title)」取色 / 调色")
                     .font(.headline)
 
                 pickButtons
@@ -142,7 +144,7 @@ struct ContrastPreviewView: View {
         let selected = activeRole == role
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(role.rawValue)
+                Text(role.title)
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 if selected {
@@ -240,7 +242,7 @@ struct ContrastPreviewView: View {
                         }
                     }
                 } label: {
-                    Label(capture.isPicking ? "取色中… Esc" : "放大镜取色", systemImage: "plus.magnifyingglass")
+                    Label(NSLocalizedString(capture.isPicking ? "取色中… Esc" : "放大镜取色", comment: ""), systemImage: "plus.magnifyingglass")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -251,7 +253,7 @@ struct ContrastPreviewView: View {
             HStack(spacing: 6) {
                 Image(systemName: capture.hasPermission ? "checkmark.shield.fill" : "exclamationmark.shield")
                     .foregroundStyle(capture.hasPermission ? .green : .orange)
-                Text(capture.hasPermission ? "屏幕录制权限已就绪" : "放大镜取色需屏幕录制权限")
+                Text(NSLocalizedString(capture.hasPermission ? "屏幕录制权限已就绪" : "放大镜取色需屏幕录制权限", comment: ""))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if !capture.hasPermission {
@@ -265,7 +267,7 @@ struct ContrastPreviewView: View {
 
     private var manualEditor: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("手动调节 (\(activeRole.rawValue))")
+            Text("手动调节 (\(activeRole.title))")
                 .font(.subheadline.weight(.semibold))
 
             hsbSlider("H", value: $hue, scale: 360) { applyHSB() }
@@ -409,7 +411,7 @@ struct ContrastPreviewView: View {
     }
 
     private func previewButton(_ title: String, filled: Bool) -> some View {
-        Text(title)
+        Text(NSLocalizedString(title, comment: ""))
             .font(.system(size: 13, weight: .semibold))
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
@@ -496,7 +498,7 @@ struct ContrastPreviewView: View {
                         .font(.title3)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(level.rawValue)
+                        Text(level.title)
                             .font(.body.weight(.medium))
                         Text(level.detail)
                             .font(.caption)
