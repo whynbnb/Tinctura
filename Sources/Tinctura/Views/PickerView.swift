@@ -3,13 +3,11 @@ import AppKit
 
 struct PickerView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var capture = ScreenCaptureService()
-    @State private var magnifier = MagnifierWindowController()
+    @StateObject private var capture = ScreenCaptureService.shared
     @State private var hue: Double = 0.6
     @State private var saturation: Double = 0.7
     @State private var brightness: Double = 0.9
     @State private var hexInput: String = "#5B8DEF"
-    @State private var followTask: Task<Void, Never>?
 
     var body: some View {
         ScrollView {
@@ -34,40 +32,10 @@ struct PickerView: View {
             syncSliders(from: appState.currentColor)
             hexInput = appState.currentColor.hex
             capture.refreshPermissionStatus()
-            capture.onColorPicked = { color in
-                appState.selectColor(color)
-                syncSliders(from: color)
-                hexInput = color.hex
-                magnifier.hide()
-                followTask?.cancel()
-            }
-            capture.onCancel = {
-                magnifier.hide()
-                followTask?.cancel()
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .triggerSystemPick)) { _ in
-            appState.selectedTab = .picker
-            capture.pickWithSystemSampler()
         }
         .onChange(of: appState.currentColor) { _, new in
             syncSliders(from: new)
             hexInput = new.hex
-        }
-        .onChange(of: capture.magnifierImage) { _, _ in
-            if capture.isPicking {
-                magnifier.update(capture: capture)
-            }
-        }
-        .onChange(of: capture.cursorPoint) { _, _ in
-            if capture.isPicking {
-                magnifier.followCursor()
-            }
-        }
-        .onChange(of: capture.zoomLevel) { _, _ in
-            if capture.isPicking {
-                magnifier.update(capture: capture)
-            }
         }
     }
 
@@ -85,23 +53,16 @@ struct PickerView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 Button {
-                    capture.pickWithSystemSampler()
+                    appState.pickSystemColor()
                 } label: {
                     Label("系统取色", systemImage: "eyedropper")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                .keyboardShortcut("c", modifiers: [.command, .shift])
 
                 Button {
-                    Task {
-                        await capture.startMagnifierPick()
-                        if capture.isPicking {
-                            magnifier.show(capture: capture)
-                            startFollowLoop()
-                        }
-                    }
+                    Task { await capture.startMagnifierPick() }
                 } label: {
                     Label(NSLocalizedString(capture.isPicking ? "取色中… Esc 取消" : "放大镜取色", comment: ""), systemImage: "plus.magnifyingglass")
                         .frame(maxWidth: .infinity)
@@ -253,15 +214,5 @@ struct PickerView: View {
         appState.selectColor(c)
         syncSliders(from: c)
         hexInput = c.hex
-    }
-
-    private func startFollowLoop() {
-        followTask?.cancel()
-        followTask = Task {
-            while !Task.isCancelled && capture.isPicking {
-                magnifier.followCursor()
-                try? await Task.sleep(nanoseconds: 16_000_000)
-            }
-        }
     }
 }

@@ -8,6 +8,7 @@ struct TincturaApp: App {
     @StateObject private var language = LanguageManager()
     @StateObject private var appearance = AppearanceManager()
     @StateObject private var menuBar = MenuBarManager()
+    @StateObject private var shortcuts = ShortcutManager()
 
     init() {
         // Ensure app activates as a regular GUI app when launched from CLI / SPM.
@@ -39,9 +40,14 @@ struct TincturaApp: App {
 
             CommandMenu("取色") {
                 Button("系统取色") {
-                    NotificationCenter.default.post(name: .triggerSystemPick, object: nil)
+                    appState.pickSystemColor()
                 }
-                .keyboardShortcut("c", modifiers: [.command, .shift])
+
+                Button("放大镜取色") {
+                    appState.pickMagnifierColor()
+                }
+
+                Divider()
 
                 Button("复制当前颜色") {
                     appState.copyCurrent()
@@ -70,6 +76,7 @@ struct TincturaApp: App {
                 .environmentObject(language)
                 .environmentObject(appearance)
                 .environmentObject(menuBar)
+                .environmentObject(shortcuts)
                 .environment(\.locale, Locale(identifier: language.localeIdentifier))
                 .id(language.language)
         }
@@ -116,15 +123,12 @@ struct TincturaApp: App {
     }
 }
 
-extension Notification.Name {
-    static let triggerSystemPick = Notification.Name("Tinctura.triggerSystemPick")
-}
-
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var language: LanguageManager
     @EnvironmentObject var appearance: AppearanceManager
     @EnvironmentObject var menuBar: MenuBarManager
+    @EnvironmentObject var shortcuts: ShortcutManager
 
     var body: some View {
         Form {
@@ -169,11 +173,20 @@ struct SettingsView: View {
             .pickerStyle(.menu)
             .disabled(!menuBar.isEnabled)
 
+            Divider()
+
+            LabeledContent("系统取色") {
+                ShortcutRecorder(shortcut: $shortcuts.systemPick)
+            }
+            LabeledContent("放大镜取色") {
+                ShortcutRecorder(shortcut: $shortcuts.magnifierPick)
+            }
+
             Text("屏幕取色 · 图片分析 · 颜色漫步")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .padding(20)
-        .frame(width: 400, height: 430)
+        .frame(width: 420, height: 480)
     }
 }

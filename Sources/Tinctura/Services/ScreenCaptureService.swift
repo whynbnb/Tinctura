@@ -6,6 +6,9 @@ import ScreenCaptureKit
 
 @MainActor
 final class ScreenCaptureService: ObservableObject {
+    /// Shared so the menu bar and global shortcuts can pick without the main window.
+    static let shared = ScreenCaptureService()
+
     @Published var hasPermission = false
     @Published var isPicking = false
     @Published var magnifierImage: NSImage?
@@ -31,6 +34,8 @@ final class ScreenCaptureService: ObservableObject {
     private var lastContextUpdate = Date.distantPast
 
     private let shield = EventShieldController()
+    private let magnifier = MagnifierWindowController()
+    private var followTask: Task<Void, Never>?
 
     var onColorPicked: ((ColorModel) -> Void)?
     var onCancel: (() -> Void)?
@@ -110,6 +115,8 @@ final class ScreenCaptureService: ObservableObject {
         )
 
         installKeyMonitor()
+        magnifier.show(capture: self)
+        startFollowLoop()
         await startStream()
         NSCursor.hide()
         updateMagnifier()
@@ -120,6 +127,9 @@ final class ScreenCaptureService: ObservableObject {
         isPicking = false
         NSCursor.unhide()
         removeKeyMonitor()
+        followTask?.cancel()
+        followTask = nil
+        magnifier.hide()
         shield.hide()
         stopStream()
         magnifierImage = nil
@@ -128,6 +138,16 @@ final class ScreenCaptureService: ObservableObject {
         contextFraction = .zero
         if cancelled {
             onCancel?()
+        }
+    }
+
+    private func startFollowLoop() {
+        followTask?.cancel()
+        followTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                self?.magnifier.followCursor()
+                try? await Task.sleep(nanoseconds: 16_000_000)
+            }
         }
     }
 
@@ -297,6 +317,9 @@ final class ScreenCaptureService: ObservableObject {
         let image = NSImage(size: NSSize(width: outW, height: outH))
         image.addRepresentation(rep)
         magnifierImage = image
+
+        // Refresh the floating overlay with the new lens / color / context.
+        magnifier.update(capture: self)
     }
 
     // MARK: - Display / context helpers

@@ -174,6 +174,7 @@ final class MenuBarManager: NSObject, ObservableObject {
 
     private let appState = AppState.shared
     private var statusItem: NSStatusItem?
+    private var magnifierItem: NSMenuItem?
     private var colorSink: AnyCancellable?
     private var formatSink: AnyCancellable?
     private var themeObserver: NSObjectProtocol?
@@ -310,6 +311,7 @@ final class MenuBarManager: NSObject, ObservableObject {
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
         menu.autoenablesItems = false
+        menu.delegate = self
 
         // No key equivalents are attached to any item in this menu: the menu bar
         // menu must not listen for / react to app shortcuts (⌘, ⌘Q …). Those
@@ -335,6 +337,12 @@ final class MenuBarManager: NSObject, ObservableObject {
         let pick = NSMenuItem(title: NSLocalizedString("系统取色", comment: ""), action: #selector(pickSystem), keyEquivalent: "")
         pick.target = self
         menu.addItem(pick)
+
+        let mag = NSMenuItem(title: NSLocalizedString("放大镜取色", comment: ""), action: #selector(pickMagnifier), keyEquivalent: "")
+        mag.target = self
+        mag.isEnabled = CGPreflightScreenCaptureAccess()
+        magnifierItem = mag
+        menu.addItem(mag)
 
         menu.addItem(.separator())
 
@@ -371,6 +379,10 @@ final class MenuBarManager: NSObject, ObservableObject {
         appState.pickSystemColor()
     }
 
+    @objc private func pickMagnifier() {
+        appState.pickMagnifierColor()
+    }
+
     @objc private func openMainWindow() {
         NSApp.activate(ignoringOtherApps: true)
         appState.showMainWindow()
@@ -383,6 +395,14 @@ final class MenuBarManager: NSObject, ObservableObject {
 
     @objc private func quitApp() {
         NSApp.terminate(nil)
+    }
+}
+
+extension MenuBarManager: NSMenuDelegate {
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.item(at: 0)?.title = copyTitle()
+        // Screen Recording may have been granted/revoked since the last open.
+        magnifierItem?.isEnabled = CGPreflightScreenCaptureAccess()
     }
 }
 

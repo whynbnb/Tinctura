@@ -39,6 +39,10 @@ final class AppState: ObservableObject {
 
     init() {
         loadHistory()
+        // Screen picks update the shared state, so they work without the window.
+        ScreenCaptureService.shared.onColorPicked = { [weak self] color in
+            self?.selectColor(color)
+        }
     }
 
     func selectColor(_ color: ColorModel, addToHistory: Bool = true) {
@@ -98,6 +102,13 @@ final class AppState: ObservableObject {
                 self.selectColor(ColorModel(nsColor: color))
             }
         }
+    }
+
+    /// Magnifier pick. No-op when Screen Recording isn't authorized, so the
+    /// menu item / shortcut never triggers a permission prompt unexpectedly.
+    func pickMagnifierColor() {
+        guard CGPreflightScreenCaptureAccess() else { return }
+        Task { await ScreenCaptureService.shared.startMagnifierPick() }
     }
 
     // MARK: - Main window
