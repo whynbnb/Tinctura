@@ -154,11 +154,26 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+            Toggle("显示色值", isOn: $menuBar.showValue)
+                .disabled(!menuBar.isEnabled)
+
+            Picker("菜单栏图标", selection: $menuBar.icon) {
+                ForEach(MenuBarIconPreset.allCases) { preset in
+                    if let symbol = preset.symbolName {
+                        Label(preset.label, systemImage: symbol).tag(preset)
+                    } else {
+                        Text(preset.label).tag(preset)
+                    }
+                }
+            }
+            .pickerStyle(.menu)
+            .disabled(!menuBar.isEnabled)
+
             Text("屏幕取色 · 图片分析 · 颜色漫步")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .padding(20)
-        .frame(width: 400, height: 330)
+        .frame(width: 400, height: 430)
     }
 }

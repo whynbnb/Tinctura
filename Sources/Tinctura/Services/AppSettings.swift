@@ -98,6 +98,34 @@ final class LanguageManager: ObservableObject {
 
 // MARK: - Menu Bar
 
+/// Preset glyphs for the status item (empty string = no icon).
+enum MenuBarIconPreset: String, CaseIterable, Identifiable {
+    case none = ""
+    case eyedropper = "eyedropper"
+    case picker = "eyedropper.halffull"
+    case brush = "paintbrush.pointed.fill"
+    case palette = "paintpalette.fill"
+    case drop = "drop.fill"
+    case halfCircle = "circle.lefthalf.filled"
+
+    var id: String { rawValue }
+
+    /// SF Symbol name, or `nil` when no icon is shown.
+    var symbolName: String? { self == .none ? nil : rawValue }
+
+    var label: String {
+        switch self {
+        case .none: return NSLocalizedString("无", comment: "")
+        case .eyedropper: return NSLocalizedString("滴管", comment: "")
+        case .picker: return NSLocalizedString("取色器", comment: "")
+        case .brush: return NSLocalizedString("画笔", comment: "")
+        case .palette: return NSLocalizedString("调色板", comment: "")
+        case .drop: return NSLocalizedString("水滴", comment: "")
+        case .halfCircle: return NSLocalizedString("半圆", comment: "")
+        }
+    }
+}
+
 /// Menu bar mode: an AppKit `NSStatusItem` with a small action menu.
 ///
 /// This intentionally does not use SwiftUI's `MenuBarExtra` scene. Putting that
@@ -123,17 +151,53 @@ final class MenuBarManager: NSObject, ObservableObject {
     nonisolated static let defaultsKey = "settings.menuBar"
     /// Whether the main window was on screen the last time the app was used.
     nonisolated static let windowShownKey = "settings.windowShown"
+    /// Preset icon shown next to the color swatch (default: picker).
+    nonisolated static let iconKey = "settings.menuBarIcon"
+    /// Whether the status item shows the current color value (default off).
+    nonisolated static let showValueKey = "settings.menuBarShowValue"
+
+    @Published var icon: MenuBarIconPreset {
+        didSet {
+            guard icon != oldValue else { return }
+            UserDefaults.standard.set(icon.rawValue, forKey: Self.iconKey)
+            refresh()
+        }
+    }
+
+    @Published var showValue: Bool {
+        didSet {
+            guard showValue != oldValue else { return }
+            UserDefaults.standard.set(showValue, forKey: Self.showValueKey)
+            refresh()
+        }
+    }
 
     private let appState = AppState.shared
     private var statusItem: NSStatusItem?
     private var colorSink: AnyCancellable?
+    private var formatSink: AnyCancellable?
+    private var themeObserver: NSObjectProtocol?
 
     override init() {
         isEnabled = UserDefaults.standard.bool(forKey: Self.defaultsKey)
+        icon = MenuBarIconPreset(rawValue: UserDefaults.standard.string(forKey: Self.iconKey) ?? "") ?? .picker
+        showValue = UserDefaults.standard.bool(forKey: Self.showValueKey)
         super.init()
         colorSink = appState.$currentColor
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.refresh() }
+        // Keep the shown value in sync with the copy format.
+        formatSink = appState.$preferredFormat
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refresh() }
+        // The icon tint follows the menu bar (system) appearance.
+        themeObserver = DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.refresh() }
+        }
     }
 
     /// Installs the status item if menu bar mode is on. Safe to call repeatedly.
@@ -169,9 +233,44 @@ final class MenuBarManager: NSObject, ObservableObject {
     }
 
     private func refresh() {
-        guard let button = statusItem?.button else { return }
-        button.image = Self.swatch(for: appState.currentColor)
-        statusItem?.menu?.item(at: 0)?.title = copyTitle()
+        guard let item = statusItem, let button = item.button else { return }
+        item.menu?.item(at: 0)?.title = copyTitle()
+
+        // Icon: a template symbol image, so the menu bar tints it automatically
+        // for light/dark (baking in a tint does not adapt reliably).
+        if let symbolName = icon.symbolName {
+            let config = NSImage.SymbolConfiguration(pointSize: 15, weight: .regular)
+            let symbol = NSImage(systemSymbolName: symbolName, accessibilityDescription: "Tinctura")?
+                .withSymbolConfiguration(config)
+            symbol?.isTemplate = true
+            button.image = symbol
+        } else {
+            button.image = nil
+        }
+        button.imagePosition = .imageLeading
+        button.imageScaling = .scaleProportionallyDown
+
+        // Color swatch lives in the title as a colored attachment; its vertical
+        // offset is derived from the font metrics so it lines up with the icon.
+        let font = button.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        let swatchHeight: CGFloat = 18
+        let swatch = Self.swatch(for: appState.currentColor, size: swatchHeight)
+        let attachment = NSTextAttachment()
+        attachment.image = swatch
+        let lineCenter = (font.ascender + font.descender) / 2
+        attachment.bounds = CGRect(
+            x: 0,
+            y: lineCenter - swatchHeight / 2,
+            width: swatch.size.width,
+            height: swatch.size.height
+        )
+
+        let title = NSMutableAttributedString()
+        title.append(NSAttributedString(attachment: attachment))
+        if showValue {
+            title.append(NSAttributedString(string: " " + appState.currentColor.formatted(appState.preferredFormat)))
+        }
+        button.attributedTitle = title
     }
 
     /// Accessory apps live in the menu bar only (no Dock icon) and keep running
@@ -186,9 +285,9 @@ final class MenuBarManager: NSObject, ObservableObject {
 
     static func swatch(for color: ColorModel, size: CGFloat = 18) -> NSImage {
         let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { rect in
-            let inset: CGFloat = 3.5
+            let inset = max(1, size * 0.12)
             let box = rect.insetBy(dx: inset, dy: inset)
-            let path = NSBezierPath(roundedRect: box, xRadius: 4, yRadius: 4)
+            let path = NSBezierPath(roundedRect: box, xRadius: size * 0.22, yRadius: size * 0.22)
             color.nsColor.setFill()
             path.fill()
             (color.isLight ? NSColor.black : NSColor.white)
