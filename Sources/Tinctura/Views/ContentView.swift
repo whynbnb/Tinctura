@@ -1,7 +1,11 @@
 import SwiftUI
+import AppKit
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var menuBar: MenuBarManager
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         NavigationSplitView {
@@ -33,6 +37,15 @@ struct ContentView: View {
                     toolbarControls
                 }
             }
+        }
+        .background(WindowAccessor { window in
+            appState.attachMainWindow(window)
+        })
+        .onAppear {
+            // Let the AppKit status item recreate the main window / open settings.
+            appState.setOpenMainWindowAction { openWindow(id: "main") }
+            appState.setOpenSettingsAction { openSettings() }
+            menuBar.start()
         }
     }
 
@@ -174,5 +187,31 @@ struct ContentView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .glassCapsule(interactive: true)
+    }
+}
+
+/// Reports the hosting `NSWindow` as soon as the view is attached — earlier than
+/// `onAppear`, which lets us hide the window before its first frame in menu bar
+/// mode (no flash).
+struct WindowAccessor: NSViewRepresentable {
+    var onWindow: (NSWindow) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = WindowReaderView()
+        view.onWindow = onWindow
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+private final class WindowReaderView: NSView {
+    var onWindow: ((NSWindow) -> Void)?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if let window {
+            onWindow?(window)
+        }
     }
 }

@@ -3,27 +3,29 @@ import AppKit
 
 @main
 struct TincturaApp: App {
-    @StateObject private var appState = AppState()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @StateObject private var appState = AppState.shared
     @StateObject private var language = LanguageManager()
     @StateObject private var appearance = AppearanceManager()
+    @StateObject private var menuBar = MenuBarManager()
 
     init() {
-        // Ensure app activates as a regular GUI app when launched from CLI / SPM
-        NSApplication.shared.setActivationPolicy(.regular)
+        // Ensure app activates as a regular GUI app when launched from CLI / SPM.
+        // In menu bar mode the app is an accessory (no Dock icon).
+        let menuBarOn = UserDefaults.standard.bool(forKey: MenuBarManager.defaultsKey)
+        NSApplication.shared.setActivationPolicy(menuBarOn ? .accessory : .regular)
     }
 
     var body: some Scene {
-        WindowGroup("Tinctura") {
+        WindowGroup("Tinctura", id: "main") {
             ContentView()
                 .environmentObject(appState)
                 .environmentObject(language)
                 .environmentObject(appearance)
+                .environmentObject(menuBar)
                 .environment(\.locale, Locale(identifier: language.localeIdentifier))
                 .id(language.language)
                 .frame(minWidth: 1160, minHeight: 780)
-                .onAppear {
-                    NSApplication.shared.activate(ignoringOtherApps: true)
-                }
         }
         .defaultSize(width: 1360, height: 880)
         .windowStyle(.automatic)
@@ -56,11 +58,18 @@ struct TincturaApp: App {
             }
         }
 
+        // NOTE: menu bar mode is implemented with an AppKit `NSStatusItem`
+        // (see `MenuBarManager`). We deliberately do NOT use SwiftUI's
+        // `MenuBarExtra` scene here: adding it to `body` enlarged the opaque
+        // `App.Body` type, and Swift's runtime then recursed while instantiating
+        // its opaque-type metadata (`buildDescriptorPath`), overflowing the stack.
+
         Settings {
             SettingsView()
                 .environmentObject(appState)
                 .environmentObject(language)
                 .environmentObject(appearance)
+                .environmentObject(menuBar)
                 .environment(\.locale, Locale(identifier: language.localeIdentifier))
                 .id(language.language)
         }
@@ -115,6 +124,7 @@ struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var language: LanguageManager
     @EnvironmentObject var appearance: AppearanceManager
+    @EnvironmentObject var menuBar: MenuBarManager
 
     var body: some View {
         Form {
@@ -139,11 +149,16 @@ struct SettingsView: View {
             }
             .pickerStyle(.menu)
 
+            Toggle("菜单栏模式", isOn: $menuBar.isEnabled)
+            Text("在菜单栏显示图标并隐藏 Dock 图标；关闭窗口后仍在菜单栏运行。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
             Text("屏幕取色 · 图片分析 · 颜色漫步")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .padding(20)
-        .frame(width: 400, height: 260)
+        .frame(width: 400, height: 330)
     }
 }

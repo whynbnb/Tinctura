@@ -29,6 +29,14 @@
 "浅色" = "Light";
 "深色" = "Dark";
 
+/* Menu bar mode */
+"菜单栏模式" = "Menu Bar Mode";
+"在菜单栏显示图标并隐藏 Dock 图标；关闭窗口后仍在菜单栏运行。" = "Show an icon in the menu bar and hide the Dock icon; keep running after the window is closed.";
+"打开主窗口" = "Open Main Window";
+"复制为" = "Copy As";
+"退出 Tinctura" = "Quit Tinctura";
+"设置…" = "Settings…";
+
 /* Picker view */
 "系统取色无需权限；放大镜取色需屏幕录制，点击不会穿透，滚轮/捏合可调倍率。" = "The system picker needs no permission. The magnifier needs Screen Recording; clicks don't pass through, and you can scroll or pinch to zoom.";
 "取色中… Esc 取消" = "Picking… Esc to cancel";
