@@ -19,6 +19,8 @@
 "取色" = "Pick";
 "系统取色" = "System Picker";
 "屏幕取色 · 图片分析 · 颜色漫步" = "Screen Picker · Image Analysis · Color Walk";
+"关于 Tinctura" = "About Tinctura";
+"MIT 许可证" = "MIT License";
 
 /* Settings */
 "外观" = "Appearance";

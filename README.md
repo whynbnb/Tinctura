@@ -13,6 +13,11 @@ English · [简体中文](README.zh-CN.md)
   Built with Swift 6 and SwiftUI.
 </p>
 
+<p align="center">
+  <a href="https://github.com/whynbnb/Tinctura">GitHub</a> ·
+  <a href="LICENSE">MIT License</a>
+</p>
+
 ---
 
 ## Features
@@ -125,6 +130,15 @@ Tinctura/
 | `⌘C` | Copy current color (selected format) |
 | `Esc` | Cancel magnifier pick |
 
+## Open Source
+
+Tinctura is open source and released under the **MIT License**.
+
+- Repository: <https://github.com/whynbnb/Tinctura>
+- License: [MIT](LICENSE)
+
+Issues and pull requests are welcome. If you find a bug or have an idea, please open an issue on GitHub.
+
 ## License
 
-MIT
+MIT © 0x574859 — see [LICENSE](LICENSE) for the full text.

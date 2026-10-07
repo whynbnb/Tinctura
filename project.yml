@@ -15,7 +15,7 @@ settings:
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: ""
     CURRENT_PROJECT_VERSION: "1"
-    MARKETING_VERSION: "1.0.0"
+    MARKETING_VERSION: "1.0"
 
 configs:
   Debug: debug
@@ -38,7 +38,6 @@ targets:
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.graphics-design
         INFOPLIST_KEY_NSHighResolutionCapable: YES
         INFOPLIST_KEY_NSSupportsAutomaticGraphicsSwitching: YES
-        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © Tinctura"
         GENERATE_INFOPLIST_FILE: YES
         # Screen recording permission for magnifier picker
         INFOPLIST_KEY_NSScreenCaptureUsageDescription: "Tinctura 需要屏幕录制权限以进行实时屏幕取色与放大镜预览。"

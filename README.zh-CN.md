@@ -13,6 +13,11 @@
   基于 Swift 6 与 SwiftUI 构建。
 </p>
 
+<p align="center">
+  <a href="https://github.com/whynbnb/Tinctura">GitHub</a> ·
+  <a href="LICENSE">MIT 许可证</a>
+</p>
+
 ---
 
 ## 功能
@@ -125,6 +130,15 @@ Tinctura/
 | `⌘C` | 复制当前颜色（所选格式） |
 | `Esc` | 取消放大镜取色 |
 
+## 开源说明
+
+Tinctura 已开源，采用 **MIT 许可证**。
+
+- 仓库地址：<https://github.com/whynbnb/Tinctura>
+- 许可证：[MIT](LICENSE)
+
+欢迎提交 Issue 与 Pull Request。发现问题或有新想法，欢迎在 GitHub 上提 Issue。
+
 ## License
 
-MIT
+MIT © 0x574859 —— 完整内容见 [LICENSE](LICENSE)。

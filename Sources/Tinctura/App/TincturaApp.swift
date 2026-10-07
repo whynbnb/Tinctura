@@ -29,6 +29,10 @@ struct TincturaApp: App {
         .windowStyle(.automatic)
         .windowToolbarStyle(.unified)
         .commands {
+            CommandGroup(replacing: .appInfo) {
+                Button("关于 Tinctura") { showAboutPanel() }
+            }
+
             CommandGroup(replacing: .newItem) {}
 
             CommandMenu("取色") {
@@ -60,6 +64,46 @@ struct TincturaApp: App {
                 .environment(\.locale, Locale(identifier: language.localeIdentifier))
                 .id(language.language)
         }
+    }
+
+    /// Standard About panel with the project link and MIT license.
+    @MainActor
+    private func showAboutPanel() {
+        let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+
+        let repoString = "https://github.com/whynbnb/Tinctura"
+        let licenseString = "https://github.com/whynbnb/Tinctura/blob/main/LICENSE"
+
+        func link(_ text: String, _ urlString: String) -> NSAttributedString {
+            NSAttributedString(string: text, attributes: [
+                .font: font,
+                .link: URL(string: urlString)!,
+                .paragraphStyle: paragraph
+            ])
+        }
+        func line(_ text: String) -> NSAttributedString {
+            NSAttributedString(string: text + "\n", attributes: [.font: font, .paragraphStyle: paragraph])
+        }
+
+        let credits = NSMutableAttributedString()
+        credits.append(link(repoString, repoString))
+        credits.append(line(""))
+        credits.append(link(NSLocalizedString("MIT 许可证", comment: ""), licenseString))
+        credits.append(line(""))
+        credits.append(NSAttributedString(
+            string: "Copyright © 2026 0x574859",
+            attributes: [.font: font, .paragraphStyle: paragraph]
+        ))
+
+        NSApp.orderFrontStandardAboutPanel(options: [
+            .applicationName: "Tinctura",
+            .applicationVersion: shortVersion,
+            .credits: credits
+        ])
     }
 }
 
